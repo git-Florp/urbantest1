@@ -1,23 +1,17 @@
 import { useState, useEffect } from "react";
-import { Grid3x3, Plus, Trash2, Move, Square, Save, FolderOpen, Settings } from "lucide-react";
+import { Grid3x3, Plus, Trash2, Move, Square, Save, FolderOpen } from "lucide-react";
 import { toast } from "sonner";
 import { saveState, loadState } from "@/lib/persistence";
 
 interface PlannerRoom {
   id: string;
   name: string;
-  type: "control" | "research" | "containment" | "storage" | "medical" | "engineering" | "corridor" | "intersection" | "custom";
+  type: "control" | "research" | "containment" | "storage" | "medical" | "engineering" | "corridor" | "custom";
   x: number;
   y: number;
   width: number;
   height: number;
   connections: string[];
-  isHallway?: boolean;
-}
-
-interface HallwaySettings {
-  autoGenerate: boolean;
-  hallwayWidth: number;
 }
 
 export const FacilityPlanner = () => {
@@ -30,18 +24,10 @@ export const FacilityPlanner = () => {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [connectMode, setConnectMode] = useState(false);
   const [connectFrom, setConnectFrom] = useState<string | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [hallwaySettings, setHallwaySettings] = useState<HallwaySettings>(() =>
-    loadState('facility_planner_hallway_settings', { autoGenerate: true, hallwayWidth: 40 })
-  );
 
   useEffect(() => {
     saveState('facility_planner_rooms', rooms);
   }, [rooms]);
-
-  useEffect(() => {
-    saveState('facility_planner_hallway_settings', hallwaySettings);
-  }, [hallwaySettings]);
 
   const addRoom = (type: PlannerRoom["type"]) => {
     const newRoom: PlannerRoom = {
@@ -109,73 +95,6 @@ export const FacilityPlanner = () => {
     setIsResizing(false);
   };
 
-  const generateHallway = (room1: PlannerRoom, room2: PlannerRoom) => {
-    const hallways: PlannerRoom[] = [];
-    const width = hallwaySettings.hallwayWidth;
-    
-    const x1 = room1.x + room1.width / 2;
-    const y1 = room1.y + room1.height / 2;
-    const x2 = room2.x + room2.width / 2;
-    const y2 = room2.y + room2.height / 2;
-    
-    const midX = (x1 + x2) / 2;
-    const midY = (y1 + y2) / 2;
-    
-    // Horizontal hallway from room1
-    hallways.push({
-      id: `hallway-${Date.now()}-h1`,
-      name: "",
-      type: "corridor",
-      x: Math.min(x1, midX) - width / 2,
-      y: y1 - width / 2,
-      width: Math.abs(x1 - midX),
-      height: width,
-      connections: [],
-      isHallway: true
-    });
-    
-    // Vertical hallway
-    hallways.push({
-      id: `hallway-${Date.now()}-v`,
-      name: "",
-      type: "corridor",
-      x: midX - width / 2,
-      y: Math.min(y1, y2) - width / 2,
-      width: width,
-      height: Math.abs(y1 - y2),
-      connections: [],
-      isHallway: true
-    });
-    
-    // Horizontal hallway to room2
-    hallways.push({
-      id: `hallway-${Date.now()}-h2`,
-      name: "",
-      type: "corridor",
-      x: Math.min(midX, x2) - width / 2,
-      y: y2 - width / 2,
-      width: Math.abs(midX - x2),
-      height: width,
-      connections: [],
-      isHallway: true
-    });
-    
-    // Intersection
-    hallways.push({
-      id: `intersection-${Date.now()}`,
-      name: "Intersection",
-      type: "intersection",
-      x: midX - width / 2,
-      y: y1 - width / 2,
-      width: width,
-      height: width,
-      connections: [],
-      isHallway: true
-    });
-    
-    return hallways;
-  };
-
   const handleConnect = (roomId: string) => {
     if (!connectFrom) {
       setConnectFrom(roomId);
@@ -186,27 +105,13 @@ export const FacilityPlanner = () => {
         const room2 = rooms.find(r => r.id === roomId);
         
         if (room1 && room2) {
-          let newRooms = [...rooms];
-          
-          // Generate hallways if auto-generate is enabled
-          if (hallwaySettings.autoGenerate) {
-            const hallways = generateHallway(room1, room2);
-            newRooms = [...newRooms, ...hallways];
-          }
-          
-          // Update connections
-          const updatedRooms = newRooms.map(r => {
-            if (r.id === connectFrom) {
-              return { ...r, connections: [...r.connections, roomId] };
-            }
-            if (r.id === roomId) {
-              return { ...r, connections: [...r.connections, connectFrom] };
-            }
-            return r;
+          updateRoom(connectFrom, {
+            connections: [...room1.connections, roomId]
           });
-          
-          setRooms(updatedRooms);
-          toast.success(hallwaySettings.autoGenerate ? "Rooms connected with hallways" : "Rooms connected");
+          updateRoom(roomId, {
+            connections: [...room2.connections, connectFrom]
+          });
+          toast.success("Rooms connected");
         }
       }
       setConnectFrom(null);
@@ -239,18 +144,12 @@ export const FacilityPlanner = () => {
     }
   };
 
-  const getRoomColor = (type: string, isHallway?: boolean) => {
-    if (isHallway && type === "corridor") {
-      return "bg-muted/50 border-muted-foreground/30";
-    }
-    if (isHallway && type === "intersection") {
-      return "bg-muted/70 border-muted-foreground/50";
-    }
+  const getRoomColor = (type: string) => {
     switch (type) {
       case "control": return "bg-blue-500/30 border-blue-500";
       case "research": return "bg-purple-500/30 border-purple-500";
       case "containment": return "bg-red-500/30 border-red-500";
-      case "storage": return "bg-muted/30 border-muted-foreground";
+      case "storage": return "bg-gray-500/30 border-gray-500";
       case "medical": return "bg-green-500/30 border-green-500";
       case "engineering": return "bg-yellow-500/30 border-yellow-500";
       case "corridor": return "bg-cyan-500/30 border-cyan-500";
@@ -321,49 +220,6 @@ export const FacilityPlanner = () => {
               Load
             </button>
           </div>
-
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className="w-full px-3 py-2 rounded-lg bg-muted/20 border border-border hover:bg-muted/30 transition-colors text-xs flex items-center justify-center gap-2 mb-4"
-          >
-            <Settings className="w-4 h-4" />
-            Hallway Settings
-          </button>
-
-          {showSettings && (
-            <div className="glass-panel p-3 mb-4 space-y-3">
-              <div className="text-xs font-bold text-primary mb-2">HALLWAY OPTIONS</div>
-              
-              <label className="flex items-center gap-2 text-xs cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={hallwaySettings.autoGenerate}
-                  onChange={(e) => setHallwaySettings({ ...hallwaySettings, autoGenerate: e.target.checked })}
-                  className="w-4 h-4"
-                />
-                <span>Auto-generate hallways</span>
-              </label>
-
-              <div>
-                <label className="text-xs text-muted-foreground">Hallway Width</label>
-                <input
-                  type="range"
-                  min="20"
-                  max="80"
-                  value={hallwaySettings.hallwayWidth}
-                  onChange={(e) => setHallwaySettings({ ...hallwaySettings, hallwayWidth: parseInt(e.target.value) })}
-                  className="w-full mt-1"
-                />
-                <div className="text-xs text-muted-foreground mt-1">{hallwaySettings.hallwayWidth}px</div>
-              </div>
-
-              <div className="text-xs text-muted-foreground pt-2 border-t border-white/10">
-                {hallwaySettings.autoGenerate 
-                  ? "Hallways will be created automatically when connecting rooms" 
-                  : "Place hallways manually using the corridor tool"}
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -377,7 +233,6 @@ export const FacilityPlanner = () => {
             { type: "medical" as const, label: "Medical Bay" },
             { type: "engineering" as const, label: "Engineering" },
             { type: "corridor" as const, label: "Corridor" },
-            { type: "intersection" as const, label: "Intersection" },
             { type: "custom" as const, label: "Custom Room" }
           ].map(({ type, label }) => (
             <button
@@ -493,11 +348,11 @@ export const FacilityPlanner = () => {
                   }
                 }}
                 onMouseDown={(e) => !connectMode && handleMouseDown(room, e)}
-                className={`absolute cursor-move transition-all ${getRoomColor(room.type, room.isHallway)} ${
+                className={`absolute cursor-move transition-all ${getRoomColor(room.type)} ${
                   selectedRoom?.id === room.id ? "ring-2 ring-primary shadow-lg shadow-primary/50" : ""
                 } ${
                   connectFrom === room.id ? "ring-2 ring-yellow-500 animate-pulse" : ""
-                } ${room.isHallway ? "rounded-sm border" : "rounded border-2 p-2"} hover:brightness-125`}
+                } rounded border-2 p-2 hover:brightness-125`}
                 style={{
                   left: `${room.x}px`,
                   top: `${room.y}px`,
@@ -505,18 +360,10 @@ export const FacilityPlanner = () => {
                   height: `${room.height}px`,
                 }}
               >
-                {!room.isHallway && (
-                  <div className="flex flex-col h-full justify-between pointer-events-none">
-                    <div className="text-xs font-bold leading-tight">{room.name}</div>
-                    <div className="text-xs opacity-60">{room.type}</div>
-                  </div>
-                )}
-                
-                {room.isHallway && room.type === "intersection" && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="text-xs font-bold opacity-70">+</div>
-                  </div>
-                )}
+                <div className="flex flex-col h-full justify-between pointer-events-none">
+                  <div className="text-xs font-bold leading-tight">{room.name}</div>
+                  <div className="text-xs opacity-60">{room.type}</div>
+                </div>
 
                 {/* Resize handle */}
                 {selectedRoom?.id === room.id && !connectMode && (

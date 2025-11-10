@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Camera, Video, AlertTriangle, List, Map } from "lucide-react";
+import { Camera, Video, AlertTriangle } from "lucide-react";
 
 interface CameraFeed {
   id: string;
@@ -7,26 +7,23 @@ interface CameraFeed {
   location: string;
   status: "online" | "offline" | "warning";
   description: string;
-  area: "north" | "south" | "east" | "west" | "central";
 }
 
 export const SecurityCameras = () => {
   const cameras: CameraFeed[] = [
-    { id: "CAM-01", name: "Main Entrance", location: "Airlock Alpha", status: "online", description: "Clear visibility. No activity detected.", area: "north" },
-    { id: "CAM-02", name: "Control Room", location: "Operations Center", status: "online", description: "Personnel present. All systems operational.", area: "central" },
-    { id: "CAM-03", name: "Research Lab A", location: "Research Division", status: "online", description: "Lab equipment active. 2 personnel on duty.", area: "east" },
-    { id: "CAM-04", name: "Containment Z-13", location: "Zone 4", status: "warning", description: "⚠️ ALERT: Subject pressing against containment glass. Unusual behavior.", area: "south" },
-    { id: "CAM-05", name: "Server Bay", location: "Level 2", status: "online", description: "Temperature normal. No personnel present. [Feed flickers occasionally]", area: "central" },
-    { id: "CAM-06", name: "Corridor 7-B", location: "Zone 7", status: "online", description: "Emergency lighting active. Shadow movement detected 3 times in past hour.", area: "west" },
-    { id: "CAM-07", name: "Terminal T-07", location: "Zone 4 Access", status: "offline", description: "⚠️ CAMERA DESTROYED - Lens shattered. Wet residue on housing.", area: "south" },
-    { id: "CAM-08", name: "Medical Bay", location: "Medical Division", status: "online", description: "1 personnel on duty. Equipment standby mode.", area: "east" },
-    { id: "CAM-09", name: "Engineering", location: "Engineering Deck", status: "online", description: "Active maintenance. 3 personnel present.", area: "west" },
+    { id: "CAM-01", name: "Main Entrance", location: "Airlock Alpha", status: "online", description: "Clear visibility. No activity detected." },
+    { id: "CAM-02", name: "Control Room", location: "Operations Center", status: "online", description: "Personnel present. All systems operational." },
+    { id: "CAM-03", name: "Research Lab A", location: "Research Division", status: "online", description: "Lab equipment active. 2 personnel on duty." },
+    { id: "CAM-04", name: "Containment Z-13", location: "Zone 4", status: "warning", description: "⚠️ ALERT: Subject pressing against containment glass. Unusual behavior." },
+    { id: "CAM-05", name: "Server Bay", location: "Level 2", status: "online", description: "Temperature normal. No personnel present. [Feed flickers occasionally]" },
+    { id: "CAM-06", name: "Corridor 7-B", location: "Zone 7", status: "online", description: "Emergency lighting active. Shadow movement detected 3 times in past hour." },
+    { id: "CAM-07", name: "Terminal T-07", location: "Zone 4 Access", status: "offline", description: "⚠️ CAMERA DESTROYED - Lens shattered. Wet residue on housing." },
+    { id: "CAM-08", name: "Medical Bay", location: "Medical Division", status: "online", description: "1 personnel on duty. Equipment standby mode." },
+    { id: "CAM-09", name: "Engineering", location: "Engineering Deck", status: "online", description: "Active maintenance. 3 personnel present." },
   ];
 
   const [selectedCamera, setSelectedCamera] = useState<CameraFeed>(cameras[0]);
   const [scanLines, setScanLines] = useState(0);
-  const [viewMode, setViewMode] = useState<"list" | "map">("list");
-  const [selectedArea, setSelectedArea] = useState<string | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -44,146 +41,39 @@ export const SecurityCameras = () => {
     }
   };
 
-  const getAreaCameras = (area: string) => cameras.filter(c => c.area === area);
-
-  const areas = [
-    { id: "north", name: "North Sector", x: "50%", y: "10%", color: "bg-blue-500" },
-    { id: "south", name: "South Sector", x: "50%", y: "90%", color: "bg-red-500" },
-    { id: "east", name: "East Sector", x: "90%", y: "50%", color: "bg-green-500" },
-    { id: "west", name: "West Sector", x: "10%", y: "50%", color: "bg-yellow-500" },
-    { id: "central", name: "Central Hub", x: "50%", y: "50%", color: "bg-primary" },
-  ];
-
   return (
     <div className="flex h-full">
-      {/* Camera List or Map */}
-      <div className="w-72 border-r border-white/5 flex flex-col">
+      {/* Camera List */}
+      <div className="w-72 border-r border-white/5">
         <div className="p-4 border-b border-white/5 bg-black/20">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Camera className="w-5 h-5 text-primary" />
-              <h2 className="font-bold">Security Cameras</h2>
-            </div>
+          <div className="flex items-center gap-2">
+            <Camera className="w-5 h-5 text-primary" />
+            <h2 className="font-bold">Security Cameras</h2>
           </div>
-          <div className="text-xs text-muted-foreground mb-3">
+          <div className="text-xs text-muted-foreground mt-1">
             {cameras.filter(c => c.status === "online").length}/{cameras.length} online
-          </div>
-
-          <div className="flex gap-2">
-            <button
-              onClick={() => setViewMode("list")}
-              className={`flex-1 px-3 py-2 rounded-lg transition-colors text-xs flex items-center justify-center gap-2 ${
-                viewMode === "list" ? "bg-primary/30 border border-primary" : "bg-muted/20 border border-border hover:bg-muted/30"
-              }`}
-            >
-              <List className="w-4 h-4" />
-              List
-            </button>
-            <button
-              onClick={() => setViewMode("map")}
-              className={`flex-1 px-3 py-2 rounded-lg transition-colors text-xs flex items-center justify-center gap-2 ${
-                viewMode === "map" ? "bg-primary/30 border border-primary" : "bg-muted/20 border border-border hover:bg-muted/30"
-              }`}
-            >
-              <Map className="w-4 h-4" />
-              Map
-            </button>
           </div>
         </div>
 
-        <div className="overflow-y-auto flex-1">
-          {viewMode === "list" ? (
-            // List View
-            cameras.map((camera) => (
-              <div
-                key={camera.id}
-                onClick={() => setSelectedCamera(camera)}
-                className={`p-3 border-b border-white/5 cursor-pointer transition-colors ${
-                  selectedCamera.id === camera.id ? "bg-primary/20" : "hover:bg-white/5"
-                }`}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <Video className={`w-4 h-4 ${getStatusColor(camera.status)}`} />
-                  <div className="font-bold text-sm">{camera.name}</div>
-                </div>
-                <div className="text-xs text-muted-foreground">{camera.location}</div>
-                <div className={`text-xs font-bold mt-1 ${getStatusColor(camera.status)}`}>
-                  ● {camera.status.toUpperCase()}
-                </div>
+        <div className="overflow-y-auto">
+          {cameras.map((camera) => (
+            <div
+              key={camera.id}
+              onClick={() => setSelectedCamera(camera)}
+              className={`p-3 border-b border-white/5 cursor-pointer transition-colors ${
+                selectedCamera.id === camera.id ? "bg-primary/20" : "hover:bg-white/5"
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Video className={`w-4 h-4 ${getStatusColor(camera.status)}`} />
+                <div className="font-bold text-sm">{camera.name}</div>
               </div>
-            ))
-          ) : (
-            // Map View
-            <div className="p-4">
-              <div className="relative w-full aspect-square bg-black/60 rounded-lg border border-white/10 mb-4">
-                {/* Grid background */}
-                <div 
-                  className="absolute inset-0 opacity-10"
-                  style={{
-                    backgroundImage: `
-                      linear-gradient(0deg, transparent 24%, rgba(0, 217, 255, 0.1) 25%, rgba(0, 217, 255, 0.1) 26%, transparent 27%),
-                      linear-gradient(90deg, transparent 24%, rgba(0, 217, 255, 0.1) 25%, rgba(0, 217, 255, 0.1) 26%, transparent 27%)
-                    `,
-                    backgroundSize: '30px 30px'
-                  }}
-                />
-
-                {/* Areas */}
-                {areas.map((area) => {
-                  const areaCameras = getAreaCameras(area.id);
-                  const hasWarning = areaCameras.some(c => c.status === "warning");
-                  const hasOffline = areaCameras.some(c => c.status === "offline");
-                  
-                  return (
-                    <div
-                      key={area.id}
-                      className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer group`}
-                      style={{ left: area.x, top: area.y }}
-                      onClick={() => setSelectedArea(area.id === selectedArea ? null : area.id)}
-                    >
-                      <div className={`relative w-16 h-16 rounded-lg ${area.color}/20 border-2 ${
-                        hasOffline ? "border-destructive" : hasWarning ? "border-yellow-500" : `${area.color.replace("bg-", "border-")}`
-                      } ${selectedArea === area.id ? "ring-2 ring-primary" : ""} hover:brightness-125 transition-all flex items-center justify-center`}>
-                        <Camera className="w-6 h-6" />
-                        <div className="absolute -top-2 -right-2 bg-black/80 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold border border-current">
-                          {areaCameras.length}
-                        </div>
-                      </div>
-                      <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs font-bold whitespace-nowrap">
-                        {area.name}
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="text-xs text-muted-foreground">{camera.location}</div>
+              <div className={`text-xs font-bold mt-1 ${getStatusColor(camera.status)}`}>
+                ● {camera.status.toUpperCase()}
               </div>
-
-              {/* Area Cameras List */}
-              {selectedArea && (
-                <div>
-                  <div className="text-xs font-bold text-primary mb-2">
-                    {areas.find(a => a.id === selectedArea)?.name} Cameras
-                  </div>
-                  {getAreaCameras(selectedArea).map((camera) => (
-                    <div
-                      key={camera.id}
-                      onClick={() => setSelectedCamera(camera)}
-                      className={`p-2 mb-2 rounded-lg cursor-pointer transition-colors ${
-                        selectedCamera.id === camera.id ? "bg-primary/20" : "bg-muted/20 hover:bg-muted/30"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Video className={`w-3 h-3 ${getStatusColor(camera.status)}`} />
-                        <div className="text-xs font-bold">{camera.name}</div>
-                      </div>
-                      <div className={`text-xs mt-1 ${getStatusColor(camera.status)}`}>
-                        ● {camera.status.toUpperCase()}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
-          )}
+          ))}
         </div>
       </div>
 
