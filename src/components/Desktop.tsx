@@ -11,12 +11,19 @@ export interface App {
   name: string;
   icon: React.ReactNode;
   run: () => void;
+  minimalInclude?: boolean;
+  standardInclude?: boolean;
 }
 
 export const Desktop = ({ onLogout, onReboot, onCriticalKill, onOpenAdminPanel, onLockdown }: { onLogout: () => void; onReboot: () => void; onCriticalKill: (processName: string, type?: "kernel" | "virus" | "bluescreen" | "memory" | "corruption" | "overload") => void; onOpenAdminPanel?: () => void; onLockdown?: (protocolName: string) => void; }) => {
   const [startMenuOpen, setStartMenuOpen] = useState(false);
   const [windows, setWindows] = useState<Array<{ id: string; app: App; zIndex: number }>>([]);
   const [nextZIndex, setNextZIndex] = useState(100);
+  const [draggedIcon, setDraggedIcon] = useState<string | null>(null);
+  const [iconPositions, setIconPositions] = useState<Record<string, { x: number; y: number }>>(() => {
+    const saved = localStorage.getItem('icon_positions');
+    return saved ? JSON.parse(saved) : {};
+  });
 
   const openWindow = (app: App) => {
     const existing = windows.find(w => w.id === app.id);
@@ -44,144 +51,216 @@ export const Desktop = ({ onLogout, onReboot, onCriticalKill, onOpenAdminPanel, 
     setNextZIndex(prev => prev + 1);
   };
 
-  const apps: App[] = [
+  // Get installation type to filter apps
+  const installType = localStorage.getItem('urbanshade_install_type') || 'standard';
+  
+  const allApps: App[] = [
     {
       id: "explorer",
       name: "File Explorer",
       icon: <FileText className="w-11 h-11" />,
-      run: () => openWindow(apps[0])
+      run: () => openWindow(allApps[0]),
+      minimalInclude: true
     },
     {
       id: "monitor",
       name: "System Monitor",
       icon: <Activity className="w-11 h-11" />,
-      run: () => openWindow(apps[1])
+      run: () => openWindow(allApps[1]),
+      minimalInclude: true
     },
     {
       id: "personnel",
       name: "Personnel",
       icon: <Users className="w-11 h-11" />,
-      run: () => openWindow(apps[2])
+      run: () => openWindow(allApps[2]),
+      standardInclude: true
     },
     {
       id: "logger",
       name: "Action Logger",
       icon: <Database className="w-11 h-11" />,
-      run: () => openWindow(apps[3])
+      run: () => openWindow(allApps[3]),
+      minimalInclude: true
     },
     {
       id: "network",
       name: "Network Scanner",
       icon: <Wifi className="w-11 h-11" />,
-      run: () => openWindow(apps[4])
+      run: () => openWindow(allApps[4]),
+      standardInclude: true
     },
     {
       id: "terminal",
       name: "Terminal",
       icon: <Terminal className="w-11 h-11" />,
-      run: () => openWindow(apps[5])
+      run: () => openWindow(allApps[5]),
+      minimalInclude: true
     },
     {
       id: "task-manager",
       name: "Task Manager",
       icon: <Cpu className="w-11 h-11" />,
-      run: () => openWindow(apps[6])
+      run: () => openWindow(allApps[6]),
+      minimalInclude: true
     },
     {
       id: "messages",
       name: "Messages",
       icon: <Mail className="w-11 h-11" />,
-      run: () => openWindow(apps[7])
+      run: () => openWindow(allApps[7]),
+      standardInclude: true
     },
     {
       id: "incidents",
       name: "Incidents",
       icon: <FileWarning className="w-11 h-11" />,
-      run: () => openWindow(apps[8])
+      run: () => openWindow(allApps[8]),
+      standardInclude: true
     },
     {
       id: "database",
       name: "Specimen DB",
       icon: <Database className="w-11 h-11" />,
-      run: () => openWindow(apps[9])
+      run: () => openWindow(allApps[9]),
+      standardInclude: true
     },
     {
       id: "browser",
       name: "Browser",
       icon: <Globe className="w-11 h-11" />,
-      run: () => openWindow(apps[10])
+      run: () => openWindow(allApps[10]),
+      minimalInclude: true
     },
     {
       id: "audio-logs",
       name: "Audio Logs",
       icon: <Music className="w-11 h-11" />,
-      run: () => openWindow(apps[11])
+      run: () => openWindow(allApps[11])
     },
     {
       id: "cameras",
       name: "Security Cameras",
       icon: <Camera className="w-11 h-11" />,
-      run: () => openWindow(apps[12])
+      run: () => openWindow(allApps[12]),
+      standardInclude: true
     },
     {
       id: "protocols",
       name: "Emergency Protocols",
       icon: <Shield className="w-11 h-11" />,
-      run: () => openWindow(apps[13])
+      run: () => openWindow(allApps[13]),
+      standardInclude: true
     },
     {
       id: "map",
       name: "Facility Map",
       icon: <MapPin className="w-11 h-11" />,
-      run: () => openWindow(apps[14])
+      run: () => openWindow(allApps[14]),
+      standardInclude: true
     },
     {
       id: "research",
       name: "Research Notes",
       icon: <BookOpen className="w-11 h-11" />,
-      run: () => openWindow(apps[15])
+      run: () => openWindow(allApps[15])
     },
     {
       id: "power",
       name: "Power Grid",
       icon: <Zap className="w-11 h-11" />,
-      run: () => openWindow(apps[16])
+      run: () => openWindow(allApps[16])
     },
     {
       id: "containment",
       name: "Containment",
       icon: <Lock className="w-11 h-11" />,
-      run: () => openWindow(apps[17])
+      run: () => openWindow(allApps[17])
     },
     {
       id: "environment",
       name: "Environment",
       icon: <Wind className="w-11 h-11" />,
-      run: () => openWindow(apps[18])
+      run: () => openWindow(allApps[18])
     },
     {
       id: "calculator",
       name: "Calculator",
       icon: <CalcIcon className="w-11 h-11" />,
-      run: () => openWindow(apps[19])
+      run: () => openWindow(allApps[19]),
+      minimalInclude: true
     },
     {
       id: "planner",
       name: "Facility Planner",
       icon: <Grid3x3 className="w-11 h-11" />,
-      run: () => openWindow(apps[20])
+      run: () => openWindow(allApps[20])
     }
   ];
 
-  const desktopApps = [apps[0], apps[1], apps[2], apps[3], apps[4], apps[5], apps[6], apps[7], apps[8], apps[9], apps[10], apps[11], apps[12], apps[13], apps[14], apps[15], apps[16], apps[17], apps[18], apps[19], apps[20]];
+  // Filter apps based on installation type
+  const apps = allApps.filter(app => {
+    if (installType === 'minimal') {
+      return app.minimalInclude === true;
+    } else if (installType === 'standard') {
+      return app.minimalInclude === true || app.standardInclude === true;
+    } else {
+      return true; // full installation
+    }
+  });
+
+  const desktopApps = apps;
+
+  const handleIconDragStart = (appId: string) => {
+    setDraggedIcon(appId);
+  };
+
+  const handleIconDragEnd = (appId: string, x: number, y: number) => {
+    const gridSize = 120;
+    const snappedX = Math.round(x / gridSize) * gridSize;
+    const snappedY = Math.round(y / gridSize) * gridSize;
+    
+    const newPositions = {
+      ...iconPositions,
+      [appId]: { x: snappedX, y: snappedY }
+    };
+    
+    setIconPositions(newPositions);
+    localStorage.setItem('icon_positions', JSON.stringify(newPositions));
+    setDraggedIcon(null);
+  };
 
   return (
     <div className="relative h-screen w-full overflow-hidden">
       {/* Desktop Icons */}
-      <div className="relative z-10 p-7 grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-4 content-start">
-        {desktopApps.map(app => (
-          <DesktopIcon key={app.id} app={app} onOpen={openWindow} />
-        ))}
+      <div className="relative z-10 p-7">
+        <div className="relative" style={{ minHeight: '100vh' }}>
+          {desktopApps.map((app, index) => {
+            const position = iconPositions[app.id];
+            const gridSize = 120;
+            const defaultX = (index % 10) * gridSize + 20;
+            const defaultY = Math.floor(index / 10) * gridSize + 20;
+            
+            return (
+              <div
+                key={app.id}
+                style={{
+                  position: 'absolute',
+                  left: position?.x ?? defaultX,
+                  top: position?.y ?? defaultY,
+                  width: gridSize,
+                }}
+              >
+                <DesktopIcon 
+                  app={app} 
+                  onOpen={openWindow}
+                  onDragStart={handleIconDragStart}
+                  onDragEnd={handleIconDragEnd}
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Windows */}

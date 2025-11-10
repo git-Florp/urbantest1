@@ -10,6 +10,7 @@ import { AdminPanel } from "@/components/AdminPanel";
 import { MaintenanceMode } from "@/components/MaintenanceMode";
 import { LockdownScreen } from "@/components/LockdownScreen";
 import { FirstTimeTour } from "@/components/FirstTimeTour";
+import { RecoveryMode } from "@/components/RecoveryMode";
 
 const Index = () => {
   const [adminSetupComplete, setAdminSetupComplete] = useState(false);
@@ -27,6 +28,9 @@ const Index = () => {
   const [lockdownMode, setLockdownMode] = useState(false);
   const [lockdownProtocol, setLockdownProtocol] = useState<string>("");
   const [showTour, setShowTour] = useState(false);
+  const [safeMode, setSafeMode] = useState(false);
+  const [needsRecovery, setNeedsRecovery] = useState(false);
+  const [inRecoveryMode, setInRecoveryMode] = useState(false);
 
   // Check if admin setup is complete and setup key listeners
   useEffect(() => {
@@ -154,6 +158,11 @@ const Index = () => {
     setCrashType(type);
     setCustomCrashData(null);
     setCrashed(true);
+    
+    // Some crash types require recovery mode
+    if (type === "corruption" || type === "virus" || Math.random() < 0.3) {
+      setNeedsRecovery(true);
+    }
   };
 
   const handleCustomCrash = (title: string, message: string, type: "kernel" | "virus" | "bluescreen" | "memory" | "corruption" | "overload") => {
@@ -176,12 +185,17 @@ const Index = () => {
   };
 
   const handleCrashReboot = () => {
-    setCrashed(false);
-    setLoggedIn(false);
-    setBooted(false);
-    setKilledProcess("");
-    setCrashType("kernel");
-    setCustomCrashData(null);
+    if (needsRecovery) {
+      setInRecoveryMode(true);
+      setCrashed(false);
+    } else {
+      setCrashed(false);
+      setLoggedIn(false);
+      setBooted(false);
+      setKilledProcess("");
+      setCrashType("kernel");
+      setCustomCrashData(null);
+    }
   };
 
   const handleLockdown = (protocolName: string) => {
@@ -218,8 +232,26 @@ const Index = () => {
     return <div className="fixed inset-0 bg-black" />;
   }
 
+  if (inRecoveryMode) {
+    return <RecoveryMode onExit={() => {
+      setInRecoveryMode(false);
+      setNeedsRecovery(false);
+      setBooted(false);
+      setLoggedIn(false);
+      setKilledProcess("");
+      setCrashType("kernel");
+      setCustomCrashData(null);
+    }} />;
+  }
+
   if (!booted) {
-    return <BootScreen onComplete={() => setBooted(true)} />;
+    return <BootScreen 
+      onComplete={() => setBooted(true)} 
+      onSafeMode={() => {
+        setSafeMode(true);
+        setBooted(true);
+      }}
+    />;
   }
 
   if (!loggedIn) {

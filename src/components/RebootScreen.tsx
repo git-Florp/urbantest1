@@ -6,36 +6,46 @@ interface RebootScreenProps {
 
 export const RebootScreen = ({ onComplete }: RebootScreenProps) => {
   const [messages, setMessages] = useState<string[]>([]);
+  const [stage, setStage] = useState<"commands" | "black">("commands");
 
   const rebootMessages = [
-    "[  OK  ] Stopping all processes",
-    "[  OK  ] Unmounting file systems",
-    "[  OK  ] Stopping containment systems",
-    "[  OK  ] Stopping security services",
-    "[  OK  ] Stopping network services",
-    "[  OK  ] Flushing system cache",
-    "[  OK  ] Reached target Reboot",
-    "",
-    "[ INFO ] System restart initiated",
-    "[ INFO ] Preparing for reboot...",
-    "",
-    "Reboot in progress...",
+    { text: "[  OK  ] Stopping all processes", duration: 800 },
+    { text: "[  OK  ] Unmounting file systems", duration: 1200 },
+    { text: "[  OK  ] Stopping containment systems", duration: 1500 },
+    { text: "[  OK  ] Stopping security services", duration: 900 },
+    { text: "[  OK  ] Stopping network services", duration: 1100 },
+    { text: "[  OK  ] Flushing system cache", duration: 700 },
+    { text: "[  OK  ] Reached target Reboot", duration: 600 },
+    { text: "", duration: 300 },
+    { text: "[ INFO ] System restart initiated", duration: 800 },
+    { text: "[ INFO ] Preparing for reboot...", duration: 1000 },
+    { text: "", duration: 500 },
+    { text: "Reboot in progress...", duration: 1500 },
   ];
 
   useEffect(() => {
-    let index = 0;
-    const interval = setInterval(() => {
-      if (index < rebootMessages.length) {
-        setMessages(prev => [...prev, rebootMessages[index]]);
-        index++;
+    let currentIndex = 0;
+    
+    const showNextMessage = () => {
+      if (currentIndex < rebootMessages.length) {
+        setMessages(prev => [...prev, rebootMessages[currentIndex].text]);
+        const duration = rebootMessages[currentIndex].duration;
+        currentIndex++;
+        setTimeout(showNextMessage, duration);
       } else {
-        clearInterval(interval);
-        setTimeout(onComplete, 1000);
+        setTimeout(() => {
+          setStage("black");
+          setTimeout(onComplete, 3000);
+        }, 1000);
       }
-    }, 150);
+    };
 
-    return () => clearInterval(interval);
-  }, []);
+    showNextMessage();
+  }, [onComplete]);
+
+  if (stage === "black") {
+    return <div className="fixed inset-0 bg-black" />;
+  }
 
   return (
     <div className="fixed inset-0 bg-black flex flex-col items-center justify-center text-white font-mono">

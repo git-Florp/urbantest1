@@ -135,14 +135,21 @@ export const RecoveryMode = ({ onExit }: RecoveryModeProps) => {
         ""
       ];
     },
-    repair: () => [
-      "[REPAIR] Initiating repair sequence...",
-      "[OK] Scanning file system",
-      "[OK] Checking core modules",
-      "[OK] Verifying checksums",
-      "[COMPLETE] System repair successful",
-      ""
-    ],
+    repair: () => {
+      // Clear the needs recovery flag
+      localStorage.removeItem('needs_recovery');
+      return [
+        "[REPAIR] Initiating repair sequence...",
+        "[OK] Scanning file system",
+        "[OK] Checking core modules",
+        "[OK] Verifying checksums",
+        "[OK] Repairing corrupted sectors",
+        "[OK] Rebuilding boot configuration",
+        "[COMPLETE] System repair successful",
+        "[INFO] System can now boot normally",
+        ""
+      ];
+    },
     restore: () => [
       "[RESTORE] Loading backup snapshot...",
       "[OK] Snapshot found: 2024-03-15 14:30:22",

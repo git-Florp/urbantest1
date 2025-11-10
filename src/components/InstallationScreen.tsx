@@ -6,10 +6,14 @@ interface InstallationScreenProps {
 }
 
 export const InstallationScreen = ({ onComplete }: InstallationScreenProps) => {
-  const [stage, setStage] = useState<"welcome" | "options" | "installing" | "user-setup">("welcome");
+  const [stage, setStage] = useState<"welcome" | "options" | "installing" | "settings" | "user-setup" | "rebooting">("welcome");
   const [installProgress, setInstallProgress] = useState(0);
   const [installLogs, setInstallLogs] = useState<string[]>([]);
   const [installationType, setInstallationType] = useState<"standard" | "minimal" | "full">("standard");
+  
+  // Settings
+  const [autoUpdates, setAutoUpdates] = useState(true);
+  const [keyboardLayout, setKeyboardLayout] = useState("US");
   
   // User setup
   const [username, setUsername] = useState("");
@@ -17,48 +21,81 @@ export const InstallationScreen = ({ onComplete }: InstallationScreenProps) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
 
-  const installSteps = [
-    "Preparing installation environment...",
-    "Creating system partitions...",
-    "Installing bootloader (GRUB)...",
-    "Copying system files...",
-    "Installing kernel modules...",
-    "Configuring system services...",
-    "Setting up network stack...",
-    "Installing security modules...",
-    "Configuring containment systems...",
-    "Setting up monitoring tools...",
-    "Installing database drivers...",
-    "Configuring authentication system...",
-    "Setting up specimen tracking...",
-    "Installing emergency protocols...",
-    "Configuring pressure monitoring...",
-    "Setting up communication systems...",
-    "Installing power grid controls...",
-    "Finalizing installation...",
-    "Running system diagnostics...",
-    "Installation complete!"
-  ];
+  const getInstallSteps = () => {
+    const baseSteps = [
+      { text: "Preparing installation environment...", duration: 2000 },
+      { text: "Creating system partitions...", duration: 3000 },
+      { text: "Installing bootloader (GRUB)...", duration: 1500 },
+      { text: "Copying system files...", duration: 4000 },
+      { text: "Installing kernel modules...", duration: 2500 }
+    ];
+
+    if (installationType === "minimal") {
+      return [
+        ...baseSteps,
+        { text: "Configuring system services...", duration: 1000 },
+        { text: "Setting up network stack...", duration: 1500 },
+        { text: "Finalizing installation...", duration: 1000 },
+        { text: "Installation complete!", duration: 500 }
+      ];
+    } else if (installationType === "standard") {
+      return [
+        ...baseSteps,
+        { text: "Configuring system services...", duration: 2000 },
+        { text: "Setting up network stack...", duration: 2500 },
+        { text: "Installing security modules...", duration: 3000 },
+        { text: "Configuring containment systems...", duration: 2000 },
+        { text: "Setting up monitoring tools...", duration: 1500 },
+        { text: "Installing database drivers...", duration: 2500 },
+        { text: "Configuring authentication system...", duration: 1800 },
+        { text: "Finalizing installation...", duration: 1500 },
+        { text: "Running system diagnostics...", duration: 2000 },
+        { text: "Installation complete!", duration: 500 }
+      ];
+    } else { // full
+      return [
+        ...baseSteps,
+        { text: "Configuring system services...", duration: 3000 },
+        { text: "Setting up network stack...", duration: 3500 },
+        { text: "Installing security modules...", duration: 4000 },
+        { text: "Configuring containment systems...", duration: 3000 },
+        { text: "Setting up monitoring tools...", duration: 2500 },
+        { text: "Installing database drivers...", duration: 3500 },
+        { text: "Configuring authentication system...", duration: 2800 },
+        { text: "Setting up specimen tracking...", duration: 3200 },
+        { text: "Installing emergency protocols...", duration: 2500 },
+        { text: "Configuring pressure monitoring...", duration: 2000 },
+        { text: "Setting up communication systems...", duration: 3000 },
+        { text: "Installing power grid controls...", duration: 2800 },
+        { text: "Installing all applications...", duration: 5000 },
+        { text: "Finalizing installation...", duration: 2000 },
+        { text: "Running system diagnostics...", duration: 3000 },
+        { text: "Installation complete!", duration: 500 }
+      ];
+    }
+  };
 
   useEffect(() => {
     if (stage === "installing") {
+      const steps = getInstallSteps();
       let currentStep = 0;
-      const totalSteps = installSteps.length;
+      const totalSteps = steps.length;
       
-      const interval = setInterval(() => {
+      const runStep = () => {
         if (currentStep < totalSteps) {
-          setInstallLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${installSteps[currentStep]}`]);
+          setInstallLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${steps[currentStep].text}`]);
           setInstallProgress(((currentStep + 1) / totalSteps) * 100);
+          const duration = steps[currentStep].duration;
           currentStep++;
+          setTimeout(runStep, duration);
         } else {
-          clearInterval(interval);
-          setTimeout(() => setStage("user-setup"), 1000);
+          setTimeout(() => setStage("settings"), 1000);
         }
-      }, 3000); // 3 seconds per step, ~1 minute total
+      };
 
-      return () => clearInterval(interval);
+      runStep();
     }
-  }, [stage]);
+  }, [stage, installationType]);
 
   const handleUserSetup = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,7 +116,14 @@ export const InstallationScreen = ({ onComplete }: InstallationScreenProps) => {
       return;
     }
 
-    onComplete({ username: username.trim(), password });
+    // Save installation type
+    localStorage.setItem("urbanshade_install_type", installationType);
+    
+    // Trigger reboot sequence
+    setStage("rebooting");
+    setTimeout(() => {
+      onComplete({ username: username.trim(), password });
+    }, 5000); // 5 seconds of reboot
   };
 
   if (stage === "welcome") {
@@ -203,7 +247,7 @@ export const InstallationScreen = ({ onComplete }: InstallationScreenProps) => {
               onClick={() => setStage("installing")}
               className="flex-1 px-6 py-3 rounded-lg bg-primary hover:bg-primary/80 text-black font-bold transition-all"
             >
-              INSTALL
+              CONTINUE
             </button>
           </div>
         </div>
@@ -255,6 +299,81 @@ export const InstallationScreen = ({ onComplete }: InstallationScreenProps) => {
     );
   }
 
+  if (stage === "settings") {
+    return (
+      <div className="fixed inset-0 bg-black flex items-center justify-center text-white font-mono p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
+              <Settings className="w-10 h-10 text-primary" />
+            </div>
+            <h2 className="text-2xl font-bold text-primary mb-2">SYSTEM SETTINGS</h2>
+            <p className="text-sm text-muted-foreground">Configure your installation</p>
+          </div>
+
+          <div className="glass-panel p-6 space-y-6">
+            <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/30 text-green-500 text-xs flex items-start gap-2">
+              <Check className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>Installation completed successfully!</span>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-primary mb-3">
+                Automatic Updates
+              </label>
+              <div className="space-y-2">
+                <button
+                  onClick={() => setAutoUpdates(true)}
+                  className={`w-full px-4 py-3 rounded-lg border-2 transition-all text-left text-sm ${
+                    autoUpdates ? "border-primary bg-primary/10" : "border-white/10 hover:border-white/20"
+                  }`}
+                >
+                  <div className="font-bold">Enable automatic updates</div>
+                  <div className="text-xs text-muted-foreground">Recommended for security patches</div>
+                </button>
+                <button
+                  onClick={() => setAutoUpdates(false)}
+                  className={`w-full px-4 py-3 rounded-lg border-2 transition-all text-left text-sm ${
+                    !autoUpdates ? "border-primary bg-primary/10" : "border-white/10 hover:border-white/20"
+                  }`}
+                >
+                  <div className="font-bold">Manual updates only</div>
+                  <div className="text-xs text-muted-foreground">You control when to update</div>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-primary mb-3">
+                Keyboard Layout
+              </label>
+              <select
+                value={keyboardLayout}
+                onChange={(e) => setKeyboardLayout(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg bg-black/50 border border-white/10 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/30 transition-all"
+              >
+                <option value="US">US (QWERTY)</option>
+                <option value="UK">UK (QWERTY)</option>
+                <option value="DE">German (QWERTZ)</option>
+                <option value="FR">French (AZERTY)</option>
+                <option value="ES">Spanish</option>
+                <option value="JP">Japanese</option>
+              </select>
+              <p className="text-xs text-muted-foreground mt-2">* Layout selection is cosmetic only</p>
+            </div>
+
+            <button
+              onClick={() => setStage("user-setup")}
+              className="w-full px-6 py-3 rounded-lg bg-primary hover:bg-primary/80 text-black font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+            >
+              CONTINUE TO USER SETUP
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (stage === "user-setup") {
     return (
       <div className="fixed inset-0 bg-black flex items-center justify-center text-white font-mono p-4">
@@ -268,9 +387,9 @@ export const InstallationScreen = ({ onComplete }: InstallationScreenProps) => {
           </div>
 
           <form onSubmit={handleUserSetup} className="glass-panel p-6 space-y-4">
-            <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/30 text-green-500 text-xs flex items-start gap-2">
-              <Check className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              <span>Installation completed successfully!</span>
+            <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-500 text-xs flex items-start gap-2">
+              <User className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span>Settings saved. Create your administrator account.</span>
             </div>
 
             <div>
