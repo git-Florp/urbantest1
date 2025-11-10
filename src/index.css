@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Urbanshade OS Design System */
+
+@layer base {
+  :root {
+    /* Urbanshade Color System - Deep Ocean Tech Theme */
+    --background: 212 75% 4%;
+    --foreground: 192 100% 96%;
+
+    --card: 214 100% 3%;
+    --card-foreground: 192 100% 96%;
+
+    --popover: 214 100% 3%;
+    --popover-foreground: 192 100% 96%;
+
+    --primary: 186 100% 44%;
+    --primary-foreground: 210 100% 3%;
+
+    --secondary: 212 40% 10%;
+    --secondary-foreground: 192 100% 96%;
+
+    --muted: 210 30% 15%;
+    --muted-foreground: 200 20% 60%;
+
+    --accent: 186 100% 50%;
+    --accent-foreground: 210 100% 3%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 186 100% 44% / 0.08;
+    --input: 186 100% 44% / 0.08;
+    --ring: 186 100% 44%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar Colors (for future use) */
+    --sidebar-background: 214 100% 3%;
+    --sidebar-foreground: 192 100% 96%;
+    --sidebar-primary: 186 100% 44%;
+    --sidebar-primary-foreground: 210 100% 3%;
+    --sidebar-accent: 212 40% 10%;
+    --sidebar-accent-foreground: 192 100% 96%;
+    --sidebar-border: 186 100% 44% / 0.08;
+    --sidebar-ring: 186 100% 44%;
+
+    /* Urbanshade Specific Tokens */
+    --glass: 212 80% 6% / 0.55;
+    --glass-strong: 214 90% 4% / 0.75;
+    --glow: 186 100% 50%;
+    --panel: 214 100% 3%;
+    --taskbar-height: 60px;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'JetBrains Mono', monospace;
+    background: radial-gradient(800px 420px at 12% 20%, hsl(186 100% 44% / 0.02), transparent 40%),
+                linear-gradient(160deg, hsl(212 75% 4%), hsl(214 80% 7%));
+    background-attachment: fixed;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    background: linear-gradient(180deg, hsl(212 80% 6% / 0.75), hsl(214 90% 4% / 0.4));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(186 100% 44% / 0.08);
+  }
+  
+  .urbanshade-glow {
+    box-shadow: 0 0 40px hsl(186 100% 50% / 0.15);
+  }
+}
