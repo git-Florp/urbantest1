@@ -1,6 +1,6 @@
 # Welcome to the Urbanshade OS (website)!
 
-(do fullscreen and shi-: `urbanshade.lovable.app`)
+(CURRENTLY OFFLINE, MOVING TO GIT)
 
 ## Is this paid or smth?
 
