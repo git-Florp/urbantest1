@@ -81,13 +81,31 @@ export const AppStore = ({ onInstall }: { onInstall?: (appId: string) => void })
   });
 
   const handleInstall = (appId: string, appName: string) => {
-    const newInstalled = [...installedApps, appId];
+    // Add to downloads folder as installer
+    const downloads = JSON.parse(localStorage.getItem('downloads_installers') || '[]');
+    const installer = {
+      id: Date.now().toString(),
+      name: `${appName} Installer.exe`,
+      appId,
+      appName,
+      size: AVAILABLE_APPS.find(a => a.id === appId)?.size || '0 MB',
+      downloaded: new Date().toISOString()
+    };
+    downloads.push(installer);
+    localStorage.setItem('downloads_installers', JSON.stringify(downloads));
+    
+    toast.success(`${appName} installer downloaded! Run it from Downloads folder.`);
+    onInstall?.(appId);
+    window.dispatchEvent(new Event('storage'));
+  };
+
+  const handleUninstall = (appId: string, appName: string) => {
+    if (!window.confirm(`Uninstall ${appName}?`)) return;
+    
+    const newInstalled = installedApps.filter(id => id !== appId);
     setInstalledApps(newInstalled);
     localStorage.setItem("urbanshade_installed_apps", JSON.stringify(newInstalled));
-    toast.success(`${appName} installed successfully!`);
-    onInstall?.(appId);
-    
-    // Trigger storage event for other components
+    toast.success(`${appName} uninstalled successfully!`);
     window.dispatchEvent(new Event('storage'));
   };
 
@@ -156,23 +174,28 @@ export const AppStore = ({ onInstall }: { onInstall?: (appId: string) => void })
                   </div>
                 </div>
 
-                <Button
-                  onClick={() => handleInstall(app.id, app.name)}
-                  disabled={isInstalled(app.id)}
-                  className="shrink-0"
-                >
+                <div className="flex gap-2 shrink-0">
                   {isInstalled(app.id) ? (
                     <>
-                      <Check className="w-4 h-4 mr-2" />
-                      Installed
+                      <Button variant="outline" size="sm" disabled>
+                        <Check className="w-4 h-4 mr-2" />
+                        Installed
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        onClick={() => handleUninstall(app.id, app.name)}
+                      >
+                        Uninstall
+                      </Button>
                     </>
                   ) : (
-                    <>
+                    <Button onClick={() => handleInstall(app.id, app.name)}>
                       <Download className="w-4 h-4 mr-2" />
-                      Install
-                    </>
+                      Download
+                    </Button>
                   )}
-                </Button>
+                </div>
               </div>
             </div>
           ))}

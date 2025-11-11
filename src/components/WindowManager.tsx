@@ -28,6 +28,13 @@ import { MusicPlayer } from "./apps/MusicPlayer";
 import { Weather } from "./apps/Weather";
 import { Clock } from "./apps/Clock";
 import { GenericApp } from "./apps/GenericApp";
+import { RegistryEditor } from "./apps/RegistryEditor";
+import { DiskManager } from "./apps/DiskManager";
+import { VPN } from "./apps/VPN";
+import { Firewall } from "./apps/Firewall";
+import { Downloads } from "./apps/Downloads";
+import { PluginStore } from "./apps/PluginStore";
+import { CrashApp } from "./apps/CrashApp";
 
 interface WindowData {
   id: string;
@@ -100,6 +107,20 @@ export const WindowManager = ({ windows, onClose, onFocus, allWindows, onCloseWi
         return <Calculator />;
       case "planner":
         return <FacilityPlanner />;
+      case "downloads":
+        return <Downloads />;
+      case "plugin-store":
+        return <PluginStore />;
+      case "crash-app":
+        return <CrashApp onCrash={() => onCriticalKill("SYSTEM_CRASH", "kernel")} />;
+      case "registry":
+        return <RegistryEditor />;
+      case "disk-manager":
+        return <DiskManager />;
+      case "vpn":
+        return <VPN />;
+      case "firewall":
+        return <Firewall />;
       case "notepad":
         return <Notepad />;
       case "paint":
@@ -114,10 +135,6 @@ export const WindowManager = ({ windows, onClose, onFocus, allWindows, onCloseWi
         return <GenericApp title="Event Calendar" description="Schedule and event management system" features={["Create and manage events", "Set reminders and notifications", "Sync with external calendars", "View monthly and weekly layouts"]} />;
       case "notes":
         return <GenericApp title="Advanced Notes" description="Rich text note-taking application" features={["Rich text formatting", "Image and file attachments", "Organize with tags and folders", "Search and filter notes"]} />;
-      case "vpn":
-        return <GenericApp title="Secure VPN" description="Encrypted network tunneling service" features={["Military-grade encryption", "Anonymous browsing", "Multiple server locations", "Kill switch protection"]} />;
-      case "firewall":
-        return <GenericApp title="Network Firewall" description="Advanced packet filtering system" features={["Inbound/outbound filtering", "Application-level control", "Intrusion detection", "Real-time monitoring"]} />;
       case "antivirus":
         return <GenericApp title="Virus Scanner" description="Real-time threat detection and removal" features={["Real-time scanning", "Quarantine management", "Scheduled scans", "Automatic updates"]} />;
       case "backup":
@@ -150,10 +167,6 @@ export const WindowManager = ({ windows, onClose, onFocus, allWindows, onCloseWi
         return <GenericApp title="SSH Terminal" description="Secure shell connections" features={["SSH/SFTP support", "Key authentication", "Session management", "Port forwarding"]} />;
       case "packet-analyzer":
         return <GenericApp title="Packet Sniffer" description="Network traffic analysis tool" features={["Capture network packets", "Protocol analysis", "Traffic statistics", "Filter expressions"]} />;
-      case "disk-manager":
-        return <GenericApp title="Disk Utility" description="Drive management tools" features={["Format and partition drives", "Disk health monitoring", "Space analysis", "RAID configuration"]} />;
-      case "registry":
-        return <GenericApp title="Registry Editor" description="System registry management" features={["Browse registry keys", "Search and find", "Export/import settings", "Backup registry"]} />;
       case "performance":
         return <GenericApp title="Performance Analyzer" description="System diagnostics and optimization" features={["CPU and memory profiling", "Disk performance", "Network analysis", "Optimization recommendations"]} />;
       case "scanner":
