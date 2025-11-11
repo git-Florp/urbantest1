@@ -34,8 +34,26 @@ const Index = () => {
 
   // Check if admin setup is complete and setup key listeners
   useEffect(() => {
-    const adminData = localStorage.getItem("urbanshade_admin");
-    setAdminSetupComplete(!!adminData);
+    try {
+      const adminData = localStorage.getItem("urbanshade_admin");
+      if (adminData) {
+        // Validate admin data structure
+        const parsed = JSON.parse(adminData);
+        if (parsed && parsed.id && parsed.name && parsed.password) {
+          setAdminSetupComplete(true);
+        } else {
+          console.warn("Invalid admin data structure, clearing...");
+          localStorage.removeItem("urbanshade_admin");
+          setAdminSetupComplete(false);
+        }
+      } else {
+        setAdminSetupComplete(false);
+      }
+    } catch (e) {
+      console.error("Error checking admin setup:", e);
+      localStorage.removeItem("urbanshade_admin");
+      setAdminSetupComplete(false);
+    }
 
     // Space key for recovery mode
     const handleKeyDown = (e: KeyboardEvent) => {

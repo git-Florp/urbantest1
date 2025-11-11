@@ -438,7 +438,7 @@ export const FirstTimeTour = ({ onComplete }: FirstTimeTourProps) => {
   ];
 
   const steps = tourType === "short" ? shortSteps : longSteps;
-  const currentStepData = tourType ? steps[currentStep] : null;
+  const currentStepData = tourType && steps && steps[currentStep] ? steps[currentStep] : null;
   const isLastStep = currentStepData && currentStep === steps.length - 1;
   const isFirstStep = currentStep === 0;
 

@@ -78,17 +78,29 @@ export const InstallationScreen = ({ onComplete }: InstallationScreenProps) => {
   useEffect(() => {
     if (stage === "installing") {
       const steps = getInstallSteps();
+      if (!steps || steps.length === 0) {
+        console.error("Installation steps not available");
+        return;
+      }
+      
       let currentStep = 0;
       const totalSteps = steps.length;
       
       const runStep = () => {
-        if (currentStep < totalSteps) {
-          setInstallLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${steps[currentStep].text}`]);
-          setInstallProgress(((currentStep + 1) / totalSteps) * 100);
-          const duration = steps[currentStep].duration;
-          currentStep++;
-          setTimeout(runStep, duration);
-        } else {
+        if (currentStep < totalSteps && steps[currentStep]) {
+          const step = steps[currentStep];
+          if (step && step.text) {
+            setInstallLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${step.text}`]);
+            setInstallProgress(((currentStep + 1) / totalSteps) * 100);
+            const duration = step.duration || 1000;
+            currentStep++;
+            setTimeout(runStep, duration);
+          } else {
+            console.error("Invalid step data at index", currentStep);
+            currentStep++;
+            setTimeout(runStep, 100);
+          }
+        } else if (currentStep >= totalSteps) {
           setTimeout(() => setStage("settings"), 1000);
         }
       };
