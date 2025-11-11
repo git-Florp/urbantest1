@@ -2,13 +2,6 @@
 
 (do fullscreen and shi-: `urbanshade.lovable.app`)
 
-## Why is this on Lovable?
-
-Bcuz my plan for this project was that:
-I create the base
-Lovable does more advanced stuff and gives me idas
-(mostly bcuz i suck with coming up with ideas)
-
 ## Is this paid or smth?
 
 Hell no
