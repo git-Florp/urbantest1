@@ -450,5 +450,25 @@ export const InstallationScreen = ({ onComplete }: InstallationScreenProps) => {
     );
   }
 
+  // Rebooting stage
+  if (stage === "rebooting") {
+    return (
+      <div className="fixed inset-0 bg-black flex flex-col items-center justify-center text-white font-mono">
+        <div className="text-center space-y-6">
+          <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
+          <div className="space-y-2">
+            <p className="text-xl text-primary font-bold">SYSTEM REBOOTING...</p>
+            <p className="text-sm text-muted-foreground">Finalizing installation</p>
+          </div>
+          <div className="text-xs text-muted-foreground space-y-1">
+            <div>[SYSTEM] Saving configuration...</div>
+            <div>[SYSTEM] Preparing first boot...</div>
+            <div>[SYSTEM] Initializing user environment...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return null;
 };

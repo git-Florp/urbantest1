@@ -11,9 +11,23 @@ export const UserSelectionScreen = ({ onLogin }: UserSelectionScreenProps) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Get admin user
+  // Get admin user with error handling
   const adminData = localStorage.getItem("urbanshade_admin");
-  const admin = adminData ? JSON.parse(adminData) : null;
+  let admin = null;
+  
+  try {
+    if (adminData) {
+      admin = JSON.parse(adminData);
+      // Validate required fields
+      if (!admin.id || !admin.name || !admin.password) {
+        console.error("Invalid admin data structure");
+        admin = null;
+      }
+    }
+  } catch (e) {
+    console.error("Failed to parse admin data:", e);
+    admin = null;
+  }
 
   const users = admin ? [admin] : [];
 
@@ -85,25 +99,43 @@ export const UserSelectionScreen = ({ onLogin }: UserSelectionScreenProps) => {
               </div>
 
               <div className="space-y-3">
-                {users.map((user) => (
-                  <button
-                    key={user.id}
-                    onClick={() => handleUserSelect(user.id)}
-                    className="w-full p-4 rounded-lg bg-black/40 border border-white/10 hover:border-primary/50 hover:bg-black/60 transition-all text-left group"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
-                        <User className="w-8 h-8 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-bold text-lg">{user.name}</div>
-                        <div className="text-sm text-muted-foreground">{user.role}</div>
-                        <div className="text-xs text-primary mt-1">Clearance Level {user.clearance}</div>
-                      </div>
-                      <div className="text-2xl text-muted-foreground group-hover:text-primary transition-colors">›</div>
+                {users.length === 0 ? (
+                  <div className="p-6 rounded-lg bg-destructive/10 border border-destructive/30 text-center space-y-3">
+                    <div className="text-destructive font-bold">SYSTEM ERROR</div>
+                    <div className="text-sm text-muted-foreground">
+                      No user accounts found. Please reinstall the system.
                     </div>
-                  </button>
-                ))}
+                    <button
+                      onClick={() => {
+                        localStorage.removeItem("urbanshade_admin");
+                        window.location.reload();
+                      }}
+                      className="px-4 py-2 rounded-lg bg-primary/20 border border-primary/30 text-primary text-sm hover:bg-primary/30 transition-colors"
+                    >
+                      REINSTALL SYSTEM
+                    </button>
+                  </div>
+                ) : (
+                  users.map((user) => (
+                    <button
+                      key={user.id}
+                      onClick={() => handleUserSelect(user.id)}
+                      className="w-full p-4 rounded-lg bg-black/40 border border-white/10 hover:border-primary/50 hover:bg-black/60 transition-all text-left group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
+                          <User className="w-8 h-8 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-bold text-lg">{user.name}</div>
+                          <div className="text-sm text-muted-foreground">{user.role}</div>
+                          <div className="text-xs text-primary mt-1">Clearance Level {user.clearance}</div>
+                        </div>
+                        <div className="text-2xl text-muted-foreground group-hover:text-primary transition-colors">›</div>
+                      </div>
+                    </button>
+                  ))
+                )}
               </div>
             </div>
 
