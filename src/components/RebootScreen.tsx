@@ -28,10 +28,16 @@ export const RebootScreen = ({ onComplete }: RebootScreenProps) => {
     
     const showNextMessage = () => {
       if (currentIndex < rebootMessages.length) {
-        setMessages(prev => [...prev, rebootMessages[currentIndex].text]);
-        const duration = rebootMessages[currentIndex].duration;
-        currentIndex++;
-        setTimeout(showNextMessage, duration);
+        const item = rebootMessages[currentIndex];
+        if (item) {
+          setMessages(prev => [...prev, item.text || ""]);
+          const duration = item.duration || 500;
+          currentIndex++;
+          setTimeout(showNextMessage, duration);
+        } else {
+          currentIndex++;
+          setTimeout(showNextMessage, 100);
+        }
       } else {
         setTimeout(() => {
           setStage("black");

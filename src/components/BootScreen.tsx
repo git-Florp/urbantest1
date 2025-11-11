@@ -107,10 +107,17 @@ export const BootScreen = ({ onComplete, onSafeMode }: BootScreenProps) => {
     
     const showNextMessage = () => {
       if (currentIndex < bootMessages.length) {
-        setMessages(prev => [...prev, bootMessages[currentIndex].text]);
-        const duration = bootMessages[currentIndex].duration;
-        currentIndex++;
-        setTimeout(showNextMessage, duration);
+        const item = bootMessages[currentIndex];
+        if (item) {
+          setMessages(prev => [...prev, item.text || ""]);
+          const duration = item.duration || 500;
+          currentIndex++;
+          setTimeout(showNextMessage, duration);
+        } else {
+          // Skip invalid item defensively
+          currentIndex++;
+          setTimeout(showNextMessage, 100);
+        }
       } else {
         setTimeout(() => {
           onComplete();
