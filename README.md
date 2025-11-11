@@ -1,6 +1,6 @@
 # Welcome to the Urbanshade OS (website)!
 
-(CURRENTLY OFFLINE, MOVING TO GIT)
+(CURRENTLY OFFLINE, MOVING TO GIT ON Aswdbatch.github.io)
 
 ## Is this paid or smth?
 
