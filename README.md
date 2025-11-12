@@ -1,6 +1,7 @@
 # Welcome to the Urbanshade OS (website)!
 
 (CURRENTLY OFFLINE, MOVING TO GIT ON Aswdbatch.github.io)
+For now on: Urbanshade.lovable.dev
 
 ## Is this paid or smth?
 
