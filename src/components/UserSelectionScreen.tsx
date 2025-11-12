@@ -29,7 +29,20 @@ export const UserSelectionScreen = ({ onLogin }: UserSelectionScreenProps) => {
     admin = null;
   }
 
-  const users = admin ? [admin] : [];
+  // Get additional accounts
+  const accountsData = localStorage.getItem("urbanshade_accounts");
+  let additionalAccounts: any[] = [];
+  
+  try {
+    if (accountsData) {
+      additionalAccounts = JSON.parse(accountsData);
+    }
+  } catch (e) {
+    console.error("Failed to parse accounts data:", e);
+  }
+
+  // Combine admin and additional accounts
+  const users = admin ? [admin, ...additionalAccounts] : additionalAccounts;
 
   const handleUserSelect = (userId: string) => {
     setSelectedUser(userId);

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Settings as SettingsIcon, Monitor, Wifi, Volume2, HardDrive, Users, Clock, Shield, Palette, Accessibility, Bell, Power, Globe, Search } from "lucide-react";
+import { useState, useRef } from "react";
+import { Settings as SettingsIcon, Monitor, Wifi, Volume2, HardDrive, Users, Clock, Shield, Palette, Accessibility, Bell, Power, Globe, Search, Upload, UserPlus, AlertTriangle, Download } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,11 +7,18 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { saveState, loadState } from "@/lib/persistence";
+import { toast } from "sonner";
 
 export const Settings = () => {
   const [selectedCategory, setSelectedCategory] = useState("system");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showFactoryResetDialog, setShowFactoryResetDialog] = useState(false);
+  const [showAddAccountDialog, setShowAddAccountDialog] = useState(false);
+  const [newAccountUsername, setNewAccountUsername] = useState("");
+  const [newAccountPassword, setNewAccountPassword] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // System settings
   const [deviceName, setDeviceName] = useState(loadState("settings_device_name", "URBANSHADE-TERMINAL"));
@@ -36,6 +43,103 @@ export const Settings = () => {
 
   const handleSave = (key: string, value: any) => {
     saveState(key, value);
+  };
+
+  const handleFactoryReset = () => {
+    // Clear all localStorage
+    localStorage.clear();
+    toast.success("Factory reset initiated. Reloading system...");
+    // Reload the page to restart the setup process
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+  };
+
+  const handleExportSystemImage = () => {
+    // Export all localStorage to a JSON file
+    const systemImage: Record<string, string> = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key) {
+        systemImage[key] = localStorage.getItem(key) || "";
+      }
+    }
+    
+    const blob = new Blob([JSON.stringify(systemImage, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `urbanshade_system_image_${new Date().getTime()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("System image exported successfully");
+  };
+
+  const handleImportSystemImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const systemImage = JSON.parse(e.target?.result as string);
+        // Clear current localStorage
+        localStorage.clear();
+        // Import all keys
+        Object.keys(systemImage).forEach(key => {
+          localStorage.setItem(key, systemImage[key]);
+        });
+        toast.success("System image imported successfully. Reloading...");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } catch (error) {
+        toast.error("Failed to import system image. Invalid file format.");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleAddAccount = () => {
+    if (!newAccountUsername || !newAccountPassword) {
+      toast.error("Please enter both username and password");
+      return;
+    }
+
+    // Get existing accounts
+    const accounts = loadState("urbanshade_accounts", []);
+    
+    // Check if username already exists
+    if (accounts.some((acc: any) => acc.username === newAccountUsername)) {
+      toast.error("Username already exists");
+      return;
+    }
+
+    // Add new account
+    const newAccount = {
+      id: `P${String(accounts.length + 1).padStart(3, '0')}`,
+      username: newAccountUsername,
+      password: newAccountPassword,
+      name: newAccountUsername,
+      role: "User",
+      clearance: 2,
+      department: "General",
+      location: "Facility",
+      status: "active",
+      phone: `x${2000 + accounts.length}`,
+      email: `${newAccountUsername}@urbanshade.corp`,
+      createdAt: new Date().toISOString()
+    };
+
+    accounts.push(newAccount);
+    saveState("urbanshade_accounts", accounts);
+    
+    toast.success(`Account created for ${newAccountUsername}`);
+    setShowAddAccountDialog(false);
+    setNewAccountUsername("");
+    setNewAccountPassword("");
   };
 
   const categories = [
@@ -115,6 +219,54 @@ export const Settings = () => {
                 <Button variant="outline" className="w-full justify-start">System protection</Button>
                 <Button variant="outline" className="w-full justify-start">Remote settings</Button>
                 <Button variant="outline" className="w-full justify-start">Environment variables</Button>
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="font-semibold mb-4">System Image</h3>
+              <div className="space-y-2">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={handleExportSystemImage}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Export System Image
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Import System Image
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".json"
+                  className="hidden"
+                  onChange={handleImportSystemImage}
+                />
+              </div>
+            </Card>
+
+            <Card className="p-6 border-destructive">
+              <h3 className="font-semibold mb-4 text-destructive flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5" />
+                Danger Zone
+              </h3>
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Factory reset will erase all data, installed apps, and return the system to its initial setup state.
+                </p>
+                <Button 
+                  variant="destructive" 
+                  className="w-full"
+                  onClick={() => setShowFactoryResetDialog(true)}
+                >
+                  Factory Reset
+                </Button>
               </div>
             </Card>
           </div>
@@ -407,6 +559,23 @@ export const Settings = () => {
                 <Button variant="outline" className="w-full justify-start">Biometric</Button>
               </div>
             </Card>
+
+            <Card className="p-6">
+              <h3 className="font-semibold mb-4">Other accounts</h3>
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground mb-3">
+                  Add additional user accounts for other people who use this device.
+                </p>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => setShowAddAccountDialog(true)}
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Add Account
+                </Button>
+              </div>
+            </Card>
           </div>
         );
 
@@ -605,47 +774,112 @@ export const Settings = () => {
   };
 
   return (
-    <div className="flex h-full bg-background">
-      {/* Sidebar */}
-      <div className="w-64 border-r border-border bg-muted/30 p-4 overflow-auto">
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input 
-              placeholder="Find a setting" 
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+    <>
+      <div className="flex h-full bg-background">
+        {/* Sidebar */}
+        <div className="w-64 border-r border-border bg-muted/30 p-4 overflow-auto">
+          <div className="mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input 
+                placeholder="Find a setting" 
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            {categories
+              .filter(cat => cat.name.toLowerCase().includes(searchQuery.toLowerCase()))
+              .map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left ${
+                  selectedCategory === category.id
+                    ? "bg-primary/20 text-primary"
+                    : "hover:bg-muted text-foreground"
+                }`}
+              >
+                {category.icon}
+                <span className="text-sm font-medium">{category.name}</span>
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="space-y-1">
-          {categories
-            .filter(cat => cat.name.toLowerCase().includes(searchQuery.toLowerCase()))
-            .map((category) => (
-            <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left ${
-                selectedCategory === category.id
-                  ? "bg-primary/20 text-primary"
-                  : "hover:bg-muted text-foreground"
-              }`}
-            >
-              {category.icon}
-              <span className="text-sm font-medium">{category.name}</span>
-            </button>
-          ))}
+        {/* Content */}
+        <div className="flex-1 overflow-auto">
+          <div className="max-w-4xl mx-auto p-8">
+            {renderContent()}
+          </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="max-w-4xl mx-auto p-8">
-          {renderContent()}
-        </div>
-      </div>
-    </div>
+      {/* Factory Reset Confirmation Dialog */}
+      <Dialog open={showFactoryResetDialog} onOpenChange={setShowFactoryResetDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Confirm Factory Reset
+            </DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. All data, settings, installed apps, and user accounts will be permanently deleted. 
+              The system will restart and require setup again.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowFactoryResetDialog(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleFactoryReset}>
+              Reset System
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Account Dialog */}
+      <Dialog open={showAddAccountDialog} onOpenChange={setShowAddAccountDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Account</DialogTitle>
+            <DialogDescription>
+              Create a new user account for this device.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Username</label>
+              <Input
+                value={newAccountUsername}
+                onChange={(e) => setNewAccountUsername(e.target.value)}
+                placeholder="Enter username"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Password</label>
+              <Input
+                type="password"
+                value={newAccountPassword}
+                onChange={(e) => setNewAccountPassword(e.target.value)}
+                placeholder="Enter password"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddAccountDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddAccount}>
+              Create Account
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
