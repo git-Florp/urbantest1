@@ -35,6 +35,7 @@ import { Firewall } from "./apps/Firewall";
 import { Downloads } from "./apps/Downloads";
 import { PluginStore } from "./apps/PluginStore";
 import { CrashApp } from "./apps/CrashApp";
+import { Settings } from "./apps/Settings";
 
 interface WindowData {
   id: string;
@@ -113,6 +114,8 @@ export const WindowManager = ({ windows, onClose, onFocus, allWindows, onCloseWi
         return <PluginStore />;
       case "crash-app":
         return <CrashApp onCrash={() => onCriticalKill("SYSTEM_CRASH", "kernel")} />;
+      case "settings":
+        return <Settings />;
       case "registry":
         return <RegistryEditor />;
       case "disk-manager":

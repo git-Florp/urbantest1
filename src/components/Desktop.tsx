@@ -4,7 +4,7 @@ import { DesktopIcon } from "./DesktopIcon";
 import { StartMenu } from "./StartMenu";
 import { WindowManager } from "./WindowManager";
 import { RecoveryMode } from "./RecoveryMode";
-import { FileText, Database, Activity, Radio, FileBox, AlertTriangle, Terminal, Users, Wifi, Cpu, Mail, Globe, Music, Camera, Shield, MapPin, BookOpen, Zap, Wind, Calculator as CalcIcon, Lock, FileWarning, Grid3x3, ShoppingBag, StickyNote, Palette, Volume2, CloudRain, Clock as ClockIcon, Calendar, Newspaper, Key, HardDrive, FileArchive, FileText as PdfIcon, Sheet, Presentation, Video, Image, Mic, Gamepad2, MessageSquare, VideoIcon, MailOpen, FolderUp, TerminalSquare, Network, HardDrive as DiskIcon, Settings, Activity as PerformanceIcon, ScanLine, Languages, BookOpenCheck, Globe2, MapPinned, Telescope, Beaker, Calculator as PhysicsIcon, Fingerprint, Lock as EncryptionIcon, KeyRound, Download, Puzzle, Skull } from "lucide-react";
+import { FileText, Database, Activity, Radio, FileBox, AlertTriangle, Terminal, Users, Wifi, Cpu, Mail, Globe, Music, Camera, Shield, MapPin, BookOpen, Zap, Wind, Calculator as CalcIcon, Lock, FileWarning, Grid3x3, ShoppingBag, StickyNote, Palette, Volume2, CloudRain, Clock as ClockIcon, Calendar, Newspaper, Key, HardDrive, FileArchive, FileText as PdfIcon, Sheet, Presentation, Video, Image, Mic, Gamepad2, MessageSquare, VideoIcon, MailOpen, FolderUp, TerminalSquare, Network, HardDrive as DiskIcon, Settings as SettingsIcon, Activity as PerformanceIcon, ScanLine, Languages, BookOpenCheck, Globe2, MapPinned, Telescope, Beaker, Calculator as PhysicsIcon, Fingerprint, Lock as EncryptionIcon, KeyRound, Download, Puzzle, Skull } from "lucide-react";
 
 export interface App {
   id: string;
@@ -227,246 +227,253 @@ export const Desktop = ({ onLogout, onReboot, onCriticalKill, onOpenAdminPanel, 
       icon: <Skull className="w-11 h-11" />,
       run: () => openWindow(allApps[24])
     },
+    {
+      id: "settings",
+      name: "Settings",
+      icon: <SettingsIcon className="w-11 h-11" />,
+      run: () => openWindow(allApps[25]),
+      minimalInclude: true
+    },
     // Downloadable Apps
     {
       id: "notepad",
       name: "Notepad",
       icon: <StickyNote className="w-11 h-11" />,
-      run: () => openWindow(allApps[22])
+      run: () => openWindow(allApps[26])
     },
     {
       id: "paint",
       name: "Paint Tool",
       icon: <Palette className="w-11 h-11" />,
-      run: () => openWindow(allApps[23])
+      run: () => openWindow(allApps[27])
     },
     {
       id: "music-player",
       name: "Media Player",
       icon: <Volume2 className="w-11 h-11" />,
-      run: () => openWindow(allApps[24])
+      run: () => openWindow(allApps[28])
     },
     {
       id: "weather",
       name: "Weather Monitor",
       icon: <CloudRain className="w-11 h-11" />,
-      run: () => openWindow(allApps[25])
+      run: () => openWindow(allApps[29])
     },
     {
       id: "clock",
       name: "World Clock",
       icon: <ClockIcon className="w-11 h-11" />,
-      run: () => openWindow(allApps[26])
+      run: () => openWindow(allApps[30])
     },
     {
       id: "calendar",
       name: "Event Calendar",
       icon: <Calendar className="w-11 h-11" />,
-      run: () => openWindow(allApps[27])
+      run: () => openWindow(allApps[31])
     },
     {
       id: "notes",
       name: "Advanced Notes",
       icon: <Newspaper className="w-11 h-11" />,
-      run: () => openWindow(allApps[28])
+      run: () => openWindow(allApps[32])
     },
     {
       id: "vpn",
       name: "Secure VPN",
       icon: <Shield className="w-11 h-11" />,
-      run: () => openWindow(allApps[29])
+      run: () => openWindow(allApps[33])
     },
     {
       id: "firewall",
       name: "Network Firewall",
       icon: <Shield className="w-11 h-11" />,
-      run: () => openWindow(allApps[30])
+      run: () => openWindow(allApps[34])
     },
     {
       id: "antivirus",
       name: "Virus Scanner",
       icon: <Shield className="w-11 h-11" />,
-      run: () => openWindow(allApps[31])
+      run: () => openWindow(allApps[35])
     },
     {
       id: "backup",
       name: "Data Backup",
       icon: <HardDrive className="w-11 h-11" />,
-      run: () => openWindow(allApps[32])
+      run: () => openWindow(allApps[36])
     },
     {
       id: "compression",
       name: "File Compressor",
       icon: <FileArchive className="w-11 h-11" />,
-      run: () => openWindow(allApps[33])
+      run: () => openWindow(allApps[37])
     },
     {
       id: "pdf-reader",
       name: "PDF Viewer",
       icon: <PdfIcon className="w-11 h-11" />,
-      run: () => openWindow(allApps[34])
+      run: () => openWindow(allApps[38])
     },
     {
       id: "spreadsheet",
       name: "Data Sheets",
       icon: <Sheet className="w-11 h-11" />,
-      run: () => openWindow(allApps[35])
+      run: () => openWindow(allApps[39])
     },
     {
       id: "presentation",
       name: "Slide Maker",
       icon: <Presentation className="w-11 h-11" />,
-      run: () => openWindow(allApps[36])
+      run: () => openWindow(allApps[40])
     },
     {
       id: "video-editor",
       name: "Video Editor",
       icon: <Video className="w-11 h-11" />,
-      run: () => openWindow(allApps[37])
+      run: () => openWindow(allApps[41])
     },
     {
       id: "image-viewer",
       name: "Photo Gallery",
       icon: <Image className="w-11 h-11" />,
-      run: () => openWindow(allApps[38])
+      run: () => openWindow(allApps[42])
     },
     {
       id: "audio-editor",
       name: "Sound Editor",
       icon: <Mic className="w-11 h-11" />,
-      run: () => openWindow(allApps[39])
+      run: () => openWindow(allApps[43])
     },
     {
       id: "game-center",
       name: "Game Hub",
       icon: <Gamepad2 className="w-11 h-11" />,
-      run: () => openWindow(allApps[40])
+      run: () => openWindow(allApps[44])
     },
     {
       id: "chat",
       name: "Instant Chat",
       icon: <MessageSquare className="w-11 h-11" />,
-      run: () => openWindow(allApps[41])
+      run: () => openWindow(allApps[45])
     },
     {
       id: "video-call",
       name: "Video Conference",
       icon: <VideoIcon className="w-11 h-11" />,
-      run: () => openWindow(allApps[42])
+      run: () => openWindow(allApps[46])
     },
     {
       id: "email-client",
       name: "Mail Client Pro",
       icon: <MailOpen className="w-11 h-11" />,
-      run: () => openWindow(allApps[43])
+      run: () => openWindow(allApps[47])
     },
     {
       id: "ftp",
       name: "FTP Manager",
       icon: <FolderUp className="w-11 h-11" />,
-      run: () => openWindow(allApps[44])
+      run: () => openWindow(allApps[48])
     },
     {
       id: "ssh",
       name: "SSH Terminal",
       icon: <TerminalSquare className="w-11 h-11" />,
-      run: () => openWindow(allApps[45])
+      run: () => openWindow(allApps[49])
     },
     {
       id: "packet-analyzer",
       name: "Packet Sniffer",
       icon: <Network className="w-11 h-11" />,
-      run: () => openWindow(allApps[46])
+      run: () => openWindow(allApps[50])
     },
     {
       id: "disk-manager",
       name: "Disk Utility",
       icon: <DiskIcon className="w-11 h-11" />,
-      run: () => openWindow(allApps[47])
+      run: () => openWindow(allApps[51])
     },
     {
       id: "registry",
       name: "Registry Editor",
-      icon: <Settings className="w-11 h-11" />,
-      run: () => openWindow(allApps[48])
+      icon: <Key className="w-11 h-11" />,
+      run: () => openWindow(allApps[52])
     },
     {
       id: "performance",
       name: "Performance Analyzer",
       icon: <PerformanceIcon className="w-11 h-11" />,
-      run: () => openWindow(allApps[49])
+      run: () => openWindow(allApps[53])
     },
     {
       id: "scanner",
       name: "Document Scanner",
       icon: <ScanLine className="w-11 h-11" />,
-      run: () => openWindow(allApps[50])
+      run: () => openWindow(allApps[54])
     },
     {
       id: "translator",
       name: "Language Translator",
       icon: <Languages className="w-11 h-11" />,
-      run: () => openWindow(allApps[51])
+      run: () => openWindow(allApps[55])
     },
     {
       id: "dictionary",
       name: "Digital Dictionary",
       icon: <BookOpenCheck className="w-11 h-11" />,
-      run: () => openWindow(allApps[52])
+      run: () => openWindow(allApps[56])
     },
     {
       id: "encyclopedia",
       name: "Encyclopedia",
       icon: <Globe2 className="w-11 h-11" />,
-      run: () => openWindow(allApps[53])
+      run: () => openWindow(allApps[57])
     },
     {
       id: "map-viewer",
       name: "Map Navigator",
       icon: <MapPinned className="w-11 h-11" />,
-      run: () => openWindow(allApps[54])
+      run: () => openWindow(allApps[58])
     },
     {
       id: "gps",
       name: "GPS Tracker",
       icon: <MapPin className="w-11 h-11" />,
-      run: () => openWindow(allApps[55])
+      run: () => openWindow(allApps[59])
     },
     {
       id: "astronomy",
       name: "Star Chart",
       icon: <Telescope className="w-11 h-11" />,
-      run: () => openWindow(allApps[56])
+      run: () => openWindow(allApps[60])
     },
     {
       id: "chemistry",
       name: "Chemistry Lab",
       icon: <Beaker className="w-11 h-11" />,
-      run: () => openWindow(allApps[57])
+      run: () => openWindow(allApps[61])
     },
     {
       id: "physics",
       name: "Physics Simulator",
       icon: <PhysicsIcon className="w-11 h-11" />,
-      run: () => openWindow(allApps[58])
+      run: () => openWindow(allApps[62])
     },
     {
       id: "biometric",
       name: "Biometric Scanner",
       icon: <Fingerprint className="w-11 h-11" />,
-      run: () => openWindow(allApps[59])
+      run: () => openWindow(allApps[63])
     },
     {
       id: "encryption",
       name: "File Encryptor",
       icon: <EncryptionIcon className="w-11 h-11" />,
-      run: () => openWindow(allApps[60])
+      run: () => openWindow(allApps[64])
     },
     {
       id: "password-manager",
       name: "Password Vault",
       icon: <KeyRound className="w-11 h-11" />,
-      run: () => openWindow(allApps[61])
+      run: () => openWindow(allApps[65])
     }
   ];
 
