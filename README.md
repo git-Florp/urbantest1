@@ -12,8 +12,11 @@ Also, i was bored :P
 
 ## Can i copy this?
 
-first off, i cant stop you.
-Second, ofcourse. I dont mind.
-Heck ur not obligated to credit me
-Do what you want with this
-My only thing that matters is that i have fun :D
+While this project is not kept under a licence,
+there are some things you should please do before using:
+
+1. Please do not claim as your own
+
+2. Please dont redestribiute with 0 modifications
+
+3. Make sure to add issue if there is one. do bot use it for suggestions.
