@@ -63,10 +63,3 @@ Notes:
 
 Thank you for helping improve Urbanshade OS!
 
-## Can i copy this?
-
-This section superseded by the more detailed "Can I copy this?" above.
-
-## Reporting problems and giving suggestions
-
-This section superseded by the updated "Reporting problems and giving suggestions" above.
