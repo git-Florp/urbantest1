@@ -14,13 +14,30 @@ This is not paid in any way, shape, or form. You are free to use this as long as
 "Am i allowed to copy this?"
 Short answer: Yes — with respect.
 Please follow these guidelines before using or redistributing any part of this project:
+
+---
+
 • 	Attribution: Do not claim the project (or major parts of it) as your own. Include a visible attribution line in your fork or derivative work. Example:
+
+
 • 	"Based on Urbanshade by aswdBatch — https://github.com/aswdBatch/urbanshade-7e993958"
+
+
 • 	Redistribution: Do not redistribute the project verbatim as your own project. If you redistribute, clearly state what you changed and keep a link back to the original repository.
+
+
 • 	Modifications: You are welcome to modify the code. When you do, document the changes (what, why, and who made them) in a changelog or in commit messages.
+
+
 • 	Commercial use: If you plan to use this in a commercial product or for large-scale distribution, please contact the maintainer first to discuss licensing and attribution.
+
+
 • 	No explicit license yet: This repository currently does not include a formal license file. Copyright is retained by the author. If you want clearer permissions, request that a license (for example MIT or Apache-2.0) be added.
+
+
 • 	Contributing back: If you improve something, please consider opening a pull request so improvements can benefit everyone.
+
+---
 
 
 ## Reporting problems and giving suggestions
