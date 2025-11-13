@@ -1,6 +1,21 @@
 ### Welcome to the Urbanshade OS (website)!
 # CURRENTLY OFFLINE, MOVING TO GIT ON aswdbatch.github.io
 For now: `urbanshade.lovable.dev`
+---
+## How to setup localy:
+
+1. Download this repo
+2. Download node.js (needed instantly
+3. Install miniweb (Or if you have python, get a python script tha tcan run localhost. This setup will run over how to setup with miniweb)
+4. After installing node.js, go to repo folder, open cmd and do `npm install` (This gets all the dependencies)
+5. After getting the dependencies, do `npm run build` If you dont see any red text, there should be a dist\ folder.
+6. Goto dist\ and put all the contents into a folder `htdocs`
+7. Put miniweb in the folder where `htdocs` is located
+8. Run miniweb
+
+It should be good to go now on `http://locahost:8080` or `localhost:8000`
+(depends machine from machine, if one doesnt work try the other!
+
 
 ## Is this paid?
 
