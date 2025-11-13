@@ -205,7 +205,8 @@ export const Desktop = ({ onLogout, onReboot, onCriticalKill, onOpenAdminPanel, 
       id: "planner",
       name: "Facility Planner",
       icon: <Grid3x3 className="w-11 h-11" />,
-      run: () => openWindow(allApps[21])
+      run: () => openWindow(allApps[21]),
+      standardInclude: true
     },
     {
       id: "downloads",

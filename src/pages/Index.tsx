@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { Desktop } from "@/components/Desktop";
 import { UserSelectionScreen } from "@/components/UserSelectionScreen";
 import { BootScreen } from "@/components/BootScreen";
+import { BiosScreen } from "@/components/BiosScreen";
 import { ShutdownScreen } from "@/components/ShutdownScreen";
 import { RebootScreen } from "@/components/RebootScreen";
 import { CrashScreen } from "@/components/CrashScreen";
@@ -14,6 +16,10 @@ import { RecoveryMode } from "@/components/RecoveryMode";
 
 const Index = () => {
   const [adminSetupComplete, setAdminSetupComplete] = useState(false);
+  const [biosComplete, setBiosComplete] = useState(() => {
+    // Check if user wants to skip BIOS (can be set via localStorage or pressing ESC quickly)
+    return localStorage.getItem('urbanshade_skip_bios') === 'true';
+  });
   const [booted, setBooted] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [shuttingDown, setShuttingDown] = useState(false);
@@ -60,6 +66,12 @@ const Index = () => {
       if (e.code === "Space" && loggedIn && !lockdownMode && !crashed && !shuttingDown && !rebooting) {
         e.preventDefault();
         setRebooting(true);
+      }
+      // DEL key to access BIOS (before boot)
+      if ((e.key === "Delete" || e.key === "Del") && !booted && biosComplete) {
+        e.preventDefault();
+        setBiosComplete(false);
+        toast.info("Entering BIOS Setup...");
       }
     };
 
@@ -260,6 +272,10 @@ const Index = () => {
       setCrashType("kernel");
       setCustomCrashData(null);
     }} />;
+  }
+
+  if (!biosComplete) {
+    return <BiosScreen onExit={() => setBiosComplete(true)} />;
   }
 
   if (!booted) {

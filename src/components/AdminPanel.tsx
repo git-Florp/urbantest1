@@ -377,6 +377,52 @@ export const AdminPanel = ({ onExit, onChaos, onCrash, onCustomCrash }: AdminPan
               </div>
             </div>
 
+            {/* Security Controls */}
+            <div className="space-y-2">
+              <h3 className="text-xs font-bold text-red-500 uppercase tracking-wider border-b border-red-500/30 pb-1">
+                Security Controls
+              </h3>
+              <div className="space-y-1.5">
+                <Button
+                  onClick={() => {
+                    const current = localStorage.getItem('bios_security_enabled') !== 'false';
+                    localStorage.setItem('bios_security_enabled', String(!current));
+                    toast.success(!current ? "✓ Security Enabled" : "⚠ Security DISABLED", {
+                      description: !current ? "All security features restored" : "System is now vulnerable"
+                    });
+                  }}
+                  variant="outline"
+                  className="w-full justify-start text-xs h-8 border-yellow-500/50 text-yellow-500"
+                  size="sm"
+                >
+                  □ Toggle System Security
+                </Button>
+                <Button
+                  onClick={() => {
+                    localStorage.removeItem('urbanshade_admin');
+                    localStorage.removeItem('urbanshade_accounts');
+                    toast.warning("🔓 Authentication Disabled");
+                  }}
+                  variant="outline"
+                  className="w-full justify-start text-xs h-8 border-red-500/50 text-red-500"
+                  size="sm"
+                >
+                  □ Disable Authentication
+                </Button>
+                <Button
+                  onClick={() => {
+                    localStorage.setItem('bios_password', '');
+                    toast.success("BIOS password removed");
+                  }}
+                  variant="outline"
+                  className="w-full justify-start text-xs h-8 border-orange-500/50 text-orange-500"
+                  size="sm"
+                >
+                  □ Clear BIOS Password
+                </Button>
+              </div>
+            </div>
+
             {/* Fun Actions */}
             <div className="space-y-2">
               <h3 className="text-xs font-bold text-yellow-500 uppercase tracking-wider border-b border-yellow-500/30 pb-1">
