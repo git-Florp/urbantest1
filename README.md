@@ -1,9 +1,17 @@
 ### Welcome to the Urbanshade OS (website)!
 # CURRENTLY OFFLINE, MOVING TO GIT ON aswdbatch.github.io
 For now: `urbanshade.lovable.dev`
-Is this paid?
+
+## Is this paid?
+
+
 This is not paid in any way, shape, or form. You are free to use this as long as you follow the agreement.
-Unofficial agreement
+
+
+## Unofficial/mutual agreement
+
+
+"Am i allowed to copy this?"
 Short answer: Yes — with respect.
 Please follow these guidelines before using or redistributing any part of this project:
 • 	Attribution: Do not claim the project (or major parts of it) as your own. Include a visible attribution line in your fork or derivative work. Example:
