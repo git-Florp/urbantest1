@@ -32,34 +32,152 @@ We value your feedback! To keep things organized, please open a single GitHub is
 
 Issue template (paste into a new issue):
 
-**Title:** [Your Name] - [Short summary: bug or suggestion]
+Title: [Your Name] – [name]
 
-**Type:** Bug / Suggestion / Question
+Type: Bugs / Suggestions / Questions
 
-**Description**
-- A short description of the problem or suggestion.
+**Description:**
 
-**Steps to reproduce (for bugs)**
-1. Step one
-2. Step two
-3. Expected vs actual result
+Use this issue to report all your bugs, suggestions, and questions together.
 
-**Suggested fix or improvement (optional)**
-- If you have an idea how to fix or improve this, include it here.
+Keep everything organized with clear headings and bullet points.
 
-**Environment (optional)**
-- Browser / OS / version / device, if relevant.
+**Bugs:**
 
-**Attachments (optional)**
-- Screenshots, logs, or small code snippets that help explain the issue.
+For each bug, include:
 
-**Contact (optional)**
-- Your preferred contact method (email, Discord, etc.) if you want a follow-up.
+Short description
 
-Notes:
-- One issue per distinct problem or suggestion helps us keep track. If you have multiple unrelated items, please open separate issues.
-- Be as specific and concise as possible — steps to reproduce and screenshots help a lot.
-- If you prefer not to use GitHub Issues, leave a comment in this repository or open a discussion; include the same details above.
+Steps to reproduce
+
+Step one
+
+Step two
+
+Expected vs actual result
+
+**Suggestions:**
+
+For each suggestion, include:
+
+Short description
+
+Why it would help
+
+Optional idea for improvement
+
+**Questions (optional):**
+
+Any clarifications or uncertainties you’d like answered.
+
+**Environment (optional):**
+
+Browser / OS / version / device, if relevant.
+
+**Attachments (optional):**
+
+Screenshots, logs, or small code snippets that help explain the issue.
+
+**Example:**
+
+Title: Alex – Feedback Report
+
+Type: Bugs + Suggestions
+
+Description
+
+**Bugs:**
+
+Settings Save Button Not Working
+
+Steps:
+
+Open Settings panel
+
+Click "Save" after changing a setting
+
+Expected: Settings should save
+
+Actual: Nothing happens
+
+Dark Mode Toggle Missing
+
+Steps:
+
+Go to Preferences
+
+Look for Dark Mode toggle
+
+Expected: Toggle should be visible
+
+Actual: No toggle present
+
+**Suggestions:**
+
+Add Keyboard Shortcuts
+
+Would speed up navigation for power users.
+
+Idea: Ctrl+S for Save, Ctrl+/ for Search.
+
+Improve Error Messages
+
+Current errors are vague.
+
+Suggestion: Show specific cause (e.g., “Network timeout” vs “Unknown error”).
+
+**Notes:**
+
+One issue per person.
+
+Inside that issue, you can list as many bugs, suggestions, and questions as you want.
+
+Be specific and concise — steps to reproduce and screenshots help a lot.
+
+If you prefer not to use GitHub Issues, you can leave a comment or open a discussion, but please follow the same format above.
 
 Thank you for helping improve Urbanshade OS!
 
+
+## Reporting CRITICAL Errors
+
+**This section is only for compiling errors. For other bugs, please use the standard feedback template.**
+
+Steps before reporting
+1. Make sure you have all dependencies installed:  
+   `
+   npm install
+   `
+2. If the error still persists:  
+   - Take a screenshot of the error.  
+   - Copy both the command you ran (npm run build) and the full error output.  
+   - Send them to emailbot00noreply@gmail.com using the template below.  
+
+---
+
+Email Template
+
+Subject: [Your Name] – Critical Compile Error  
+
+Body:  
+`
+Command: npm run build
+Error Output: [paste full error here]
+
+Screenshot: [attach screenshot file]
+
+Environment:
+- OS: [Windows / macOS / Linux / Android]
+- Node.js version: [e.g. v18.17.0]
+- npm version: [e.g. 9.6.7]
+- Device: [Laptop / Phone / etc.]
+`
+
+---
+
+Notes
+- Only use this process for compile-time errors (build fails, dependency issues, etc.).  
+- For runtime bugs, UI glitches, or feature suggestions, please use the standard GitHub issue template.  
+- The more detail you provide (error logs, environment info, screenshots), the faster the issue can be diagnosed
+
+  Again, this is ONLY meant for COMPILER ERRORS, and you have to be using a supported nodejs version.
