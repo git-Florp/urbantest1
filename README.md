@@ -3,14 +3,11 @@
 (CURRENTLY OFFLINE, MOVING TO GIT ON Aswdbatch.github.io)
 For now on: Urbanshade.lovable.dev
 
-## Is this paid or smth?
+## Is this paid?
 
-Hell no
-I do this bcuz its fun and i dont get bored.
-I wanna both improve my programming
-Also, i was bored :P
+This is not paid in any way, shapes or form. You are free to use this as long as you follow the agreement.
 
-## Can I copy this?
+## Unofficial agreement 
 
 Short answer: Yes — with respect.
 
