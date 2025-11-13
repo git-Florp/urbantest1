@@ -19,4 +19,19 @@ there are some things you should please do before using:
 
 2. Please dont redestribiute with 0 modifications
 
-3. Make sure to add issue if there is one. do bot use it for suggestions.
+## Reporting problems and giving suggestions
+
+To keep everything organized, we ask for one issue per person, in the following format:
+
+Title: (Name) - (name of your issue/recomendation request)
+
+Bugs:
+
+(list bugs)
+
+Suggestions:
+
+(list suggestions)
+
+
+- (name)
