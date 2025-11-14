@@ -23,23 +23,39 @@ export const Settings = () => {
   // System settings
   const [deviceName, setDeviceName] = useState(loadState("settings_device_name", "URBANSHADE-TERMINAL"));
   const [autoUpdates, setAutoUpdates] = useState(loadState("settings_auto_updates", true));
+  const [telemetry, setTelemetry] = useState(loadState("settings_telemetry", false));
+  const [powerMode, setPowerMode] = useState(loadState("settings_power_mode", "balanced"));
   
   // Display settings
   const [brightness, setBrightness] = useState(loadState("settings_brightness", [80]));
   const [resolution, setResolution] = useState(loadState("settings_resolution", "1920x1080"));
   const [nightLight, setNightLight] = useState(loadState("settings_night_light", false));
+  const [animations, setAnimations] = useState(loadState("settings_animations", true));
+  const [theme, setTheme] = useState(loadState("settings_theme", "dark"));
   
   // Network settings
   const [wifiEnabled, setWifiEnabled] = useState(loadState("settings_wifi", true));
   const [vpnEnabled, setVpnEnabled] = useState(loadState("settings_vpn", false));
+  const [proxyEnabled, setProxyEnabled] = useState(loadState("settings_proxy", false));
   
   // Sound settings
   const [volume, setVolume] = useState(loadState("settings_volume", [70]));
   const [muteEnabled, setMuteEnabled] = useState(loadState("settings_mute", false));
+  const [soundEffects, setSoundEffects] = useState(loadState("settings_sound_effects", true));
+  
+  // Time & Language
+  const [timeZone, setTimeZone] = useState(loadState("settings_timezone", "UTC-5"));
+  const [language, setLanguage] = useState(loadState("settings_language", "English"));
+  const [dateFormat, setDateFormat] = useState(loadState("settings_date_format", "MM/DD/YYYY"));
+  
+  // Privacy
+  const [locationTracking, setLocationTracking] = useState(loadState("settings_location", false));
+  const [crashReports, setCrashReports] = useState(loadState("settings_crash_reports", true));
   
   // Notifications
   const [notificationsEnabled, setNotificationsEnabled] = useState(loadState("settings_notifications", true));
   const [doNotDisturb, setDoNotDisturb] = useState(loadState("settings_dnd", false));
+  const [notificationSound, setNotificationSound] = useState(loadState("settings_notification_sound", true));
 
   const handleSave = (key: string, value: any) => {
     saveState(key, value);
@@ -206,6 +222,13 @@ export const Settings = () => {
                   </div>
                   <Switch checked={autoUpdates} onCheckedChange={(checked) => { setAutoUpdates(checked); handleSave("settings_auto_updates", checked); }} />
                 </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Send telemetry data</div>
+                    <div className="text-sm text-muted-foreground">Help improve the system</div>
+                  </div>
+                  <Switch checked={telemetry} onCheckedChange={(checked) => { setTelemetry(checked); handleSave("settings_telemetry", checked); }} />
+                </div>
                 <Button className="w-full">Check for updates</Button>
                 <div className="text-sm text-muted-foreground">
                   Last checked: Today at 3:47 PM
@@ -295,6 +318,32 @@ export const Settings = () => {
             </Card>
 
             <Card className="p-6">
+              <h3 className="font-semibold mb-4">Appearance</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Theme</label>
+                  <Select value={theme} onValueChange={(value) => { setTheme(value); handleSave("settings_theme", value); }}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="dark">Dark</SelectItem>
+                      <SelectItem value="light">Light</SelectItem>
+                      <SelectItem value="auto">Auto (System)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Animations</div>
+                    <div className="text-sm text-muted-foreground">Enable smooth transitions</div>
+                  </div>
+                  <Switch checked={animations} onCheckedChange={(checked) => { setAnimations(checked); handleSave("settings_animations", checked); }} />
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6">
               <h3 className="font-semibold mb-4">Scale and layout</h3>
               <div className="space-y-4">
                 <div>
@@ -360,6 +409,19 @@ export const Settings = () => {
                     <div className="text-sm text-muted-foreground">Secure your connection</div>
                   </div>
                   <Switch checked={vpnEnabled} onCheckedChange={(checked) => { setVpnEnabled(checked); handleSave("settings_vpn", checked); }} />
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="font-semibold mb-4">Proxy</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Use proxy server</div>
+                    <div className="text-sm text-muted-foreground">Route traffic through proxy</div>
+                  </div>
+                  <Switch checked={proxyEnabled} onCheckedChange={(checked) => { setProxyEnabled(checked); handleSave("settings_proxy", checked); }} />
                 </div>
               </div>
             </Card>
@@ -500,6 +562,41 @@ export const Settings = () => {
             </div>
 
             <Card className="p-6">
+              <h3 className="font-semibold mb-4">Notification Settings</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Notifications</div>
+                    <div className="text-sm text-muted-foreground">Show notifications from apps and system</div>
+                  </div>
+                  <Switch checked={notificationsEnabled} onCheckedChange={(checked) => { setNotificationsEnabled(checked); handleSave("settings_notifications", checked); }} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Do not disturb</div>
+                    <div className="text-sm text-muted-foreground">Silence all notifications</div>
+                  </div>
+                  <Switch checked={doNotDisturb} onCheckedChange={(checked) => { setDoNotDisturb(checked); handleSave("settings_dnd", checked); }} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Notification sounds</div>
+                    <div className="text-sm text-muted-foreground">Play sound for notifications</div>
+                  </div>
+                  <Switch checked={notificationSound} onCheckedChange={(checked) => { setNotificationSound(checked); handleSave("settings_notification_sound", checked); }} />
+                </div>
+              </div>
+            </Card>
+          </div>
+        );
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Notifications</h2>
+              <p className="text-muted-foreground mb-6">Manage system and app notifications</p>
+            </div>
+
+            <Card className="p-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -590,60 +687,113 @@ export const Settings = () => {
             <Card className="p-6">
               <h3 className="font-semibold mb-4">Date & Time</h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">Set time automatically</div>
-                    <div className="text-sm text-muted-foreground">Sync with internet time</div>
-                  </div>
-                  <Switch defaultChecked />
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Time zone</label>
+                  <Select value={timeZone} onValueChange={(value) => { setTimeZone(value); handleSave("settings_timezone", value); }}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="UTC-8">Pacific Time (UTC-8)</SelectItem>
+                      <SelectItem value="UTC-7">Mountain Time (UTC-7)</SelectItem>
+                      <SelectItem value="UTC-6">Central Time (UTC-6)</SelectItem>
+                      <SelectItem value="UTC-5">Eastern Time (UTC-5)</SelectItem>
+                      <SelectItem value="UTC+0">GMT (UTC+0)</SelectItem>
+                      <SelectItem value="UTC+1">Central European (UTC+1)</SelectItem>
+                      <SelectItem value="UTC+8">China (UTC+8)</SelectItem>
+                      <SelectItem value="UTC+9">Japan (UTC+9)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="text-sm space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Current time:</span>
-                    <span className="font-mono">{new Date().toLocaleTimeString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Current date:</span>
-                    <span>{new Date().toLocaleDateString()}</span>
-                  </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Date format</label>
+                  <Select value={dateFormat} onValueChange={(value) => { setDateFormat(value); handleSave("settings_date_format", value); }}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
+                      <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
+                      <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </Card>
 
             <Card className="p-6">
               <h3 className="font-semibold mb-4">Language</h3>
-              <Select defaultValue="en-us">
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en-us">English (United States)</SelectItem>
-                  <SelectItem value="en-gb">English (United Kingdom)</SelectItem>
-                  <SelectItem value="es">Español</SelectItem>
-                  <SelectItem value="fr">Français</SelectItem>
-                  <SelectItem value="de">Deutsch</SelectItem>
-                </SelectContent>
-              </Select>
-            </Card>
-
-            <Card className="p-6">
-              <h3 className="font-semibold mb-4">Region</h3>
-              <Select defaultValue="us">
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="us">United States</SelectItem>
-                  <SelectItem value="uk">United Kingdom</SelectItem>
-                  <SelectItem value="ca">Canada</SelectItem>
-                  <SelectItem value="au">Australia</SelectItem>
-                </SelectContent>
-              </Select>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Display language</label>
+                <Select value={language} onValueChange={(value) => { setLanguage(value); handleSave("settings_language", value); }}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="English">English (United States)</SelectItem>
+                    <SelectItem value="Spanish">Spanish</SelectItem>
+                    <SelectItem value="French">French</SelectItem>
+                    <SelectItem value="German">German</SelectItem>
+                    <SelectItem value="Japanese">Japanese</SelectItem>
+                    <SelectItem value="Chinese">Chinese (Simplified)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </Card>
           </div>
         );
 
       case "privacy":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Privacy & Security</h2>
+              <p className="text-muted-foreground mb-6">Manage privacy settings and security features</p>
+            </div>
+
+            <Card className="p-6">
+              <h3 className="font-semibold mb-4">Location Services</h3>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-medium">Allow apps to access location</div>
+                  <div className="text-sm text-muted-foreground">Help apps provide location-based services</div>
+                </div>
+                <Switch checked={locationTracking} onCheckedChange={(checked) => { setLocationTracking(checked); handleSave("settings_location", checked); }} />
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="font-semibold mb-4">Diagnostics & Feedback</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Send crash reports</div>
+                    <div className="text-sm text-muted-foreground">Help improve system stability</div>
+                  </div>
+                  <Switch checked={crashReports} onCheckedChange={(checked) => { setCrashReports(checked); handleSave("settings_crash_reports", checked); }} />
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="font-semibold mb-4">Security Status</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Firewall:</span>
+                  <span className="text-green-500">Active</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Antivirus:</span>
+                  <span className="text-green-500">Up to date</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Last scan:</span>
+                  <span>Today, 2:15 PM</span>
+                </div>
+              </div>
+            </Card>
+          </div>
+        );
         return (
           <div className="space-y-6">
             <div>
@@ -719,6 +869,56 @@ export const Settings = () => {
         );
 
       case "power":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Power & Battery</h2>
+              <p className="text-muted-foreground mb-6">Manage power settings and battery usage</p>
+            </div>
+
+            <Card className="p-6">
+              <h3 className="font-semibold mb-4">Power Mode</h3>
+              <div>
+                <label className="text-sm font-medium mb-3 block">Select power mode</label>
+                <Select value={powerMode} onValueChange={(value) => { setPowerMode(value); handleSave("settings_power_mode", value); }}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="power-saver">Power Saver</SelectItem>
+                    <SelectItem value="balanced">Balanced (Recommended)</SelectItem>
+                    <SelectItem value="high-performance">High Performance</SelectItem>
+                    <SelectItem value="maximum">Maximum Performance</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {powerMode === "power-saver" && "Extends battery life by reducing performance"}
+                  {powerMode === "balanced" && "Balances performance and energy consumption"}
+                  {powerMode === "high-performance" && "Prioritizes performance over battery life"}
+                  {powerMode === "maximum" && "Maximum performance, highest power consumption"}
+                </p>
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <h3 className="font-semibold mb-4">Power Status</h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Battery:</span>
+                  <span className="text-green-500">98% (Charging)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Power Source:</span>
+                  <span>Fusion Reactor</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Estimated Runtime:</span>
+                  <span>72 hours</span>
+                </div>
+              </div>
+            </Card>
+          </div>
+        );
         return (
           <div className="space-y-6">
             <div>

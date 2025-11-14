@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Globe, Clock, Monitor, Check } from "lucide-react";
+import { Settings, Globe, Clock, Monitor, Check, Shield, Info } from "lucide-react";
 import { toast } from "sonner";
 
 interface OOBEScreenProps {
@@ -7,17 +7,29 @@ interface OOBEScreenProps {
 }
 
 export const OOBEScreen = ({ onComplete }: OOBEScreenProps) => {
-  const [step, setStep] = useState<"welcome" | "region" | "time" | "display" | "finish">("welcome");
+  const [step, setStep] = useState<"welcome" | "region" | "time" | "display" | "privacy" | "survey" | "finish">("welcome");
   const [region, setRegion] = useState("North America");
   const [timezone, setTimezone] = useState("UTC-5 (EST)");
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [animations, setAnimations] = useState(true);
+  
+  // Privacy settings
+  const [analytics, setAnalytics] = useState(false);
+  const [crashReports, setCrashReports] = useState(true);
+  const [diagnostics, setDiagnostics] = useState(true);
+  
+  // Survey
+  const [role, setRole] = useState("");
+  const [experience, setExperience] = useState("");
+  const [purpose, setPurpose] = useState("");
 
   const handleNext = () => {
     if (step === "welcome") setStep("region");
     else if (step === "region") setStep("time");
     else if (step === "time") setStep("display");
-    else if (step === "display") setStep("finish");
+    else if (step === "display") setStep("privacy");
+    else if (step === "privacy") setStep("survey");
+    else if (step === "survey") setStep("finish");
   };
 
   const handleComplete = () => {
@@ -26,7 +38,13 @@ export const OOBEScreen = ({ onComplete }: OOBEScreenProps) => {
       region,
       timezone,
       theme,
-      animations
+      animations,
+      analytics,
+      crashReports,
+      diagnostics,
+      role,
+      experience,
+      purpose
     }));
     toast.success("Setup complete!");
     onComplete();
@@ -114,6 +132,175 @@ export const OOBEScreen = ({ onComplete }: OOBEScreenProps) => {
 
             <div className="flex gap-4 justify-end">
               <button onClick={() => setStep("region")} className="px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+                Back
+              </button>
+              <button onClick={handleNext} className="px-6 py-3 rounded-lg bg-primary hover:bg-primary/80 transition-colors">
+                Continue
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === "privacy" && (
+          <div className="space-y-8 animate-fade-in">
+            <div className="flex items-center gap-4 mb-8">
+              <Shield className="w-12 h-12 text-primary" />
+              <h2 className="text-4xl font-bold">Privacy Settings</h2>
+            </div>
+            
+            <div className="space-y-4">
+              <p className="text-muted-foreground mb-6">
+                Configure what data the system can collect to improve your experience.
+                All data is stored locally - nothing is sent to external servers.
+              </p>
+
+              <label className="flex items-start gap-3 cursor-pointer p-4 rounded-lg bg-black/40 border border-white/10 hover:border-primary/30 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={analytics}
+                  onChange={(e) => setAnalytics(e.target.checked)}
+                  className="w-5 h-5 mt-1"
+                />
+                <div className="flex-1">
+                  <div className="font-bold">Usage Analytics</div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Track which features you use most to optimize your experience. 
+                    Data stays on your device.
+                  </div>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer p-4 rounded-lg bg-black/40 border border-white/10 hover:border-primary/30 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={crashReports}
+                  onChange={(e) => setCrashReports(e.target.checked)}
+                  className="w-5 h-5 mt-1"
+                />
+                <div className="flex-1">
+                  <div className="font-bold">Crash Reports</div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Help diagnose system crashes and errors. Includes error logs and system state.
+                  </div>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer p-4 rounded-lg bg-black/40 border border-white/10 hover:border-primary/30 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={diagnostics}
+                  onChange={(e) => setDiagnostics(e.target.checked)}
+                  className="w-5 h-5 mt-1"
+                />
+                <div className="flex-1">
+                  <div className="font-bold">System Diagnostics</div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Collect performance metrics and system health data for troubleshooting.
+                  </div>
+                </div>
+              </label>
+
+              <div className="p-4 rounded-lg bg-primary/10 border border-primary/30 mt-6">
+                <p className="text-xs text-muted-foreground">
+                  <strong className="text-primary">Privacy Note:</strong> This is a simulated system. 
+                  All settings only affect local browser storage. No actual data collection occurs.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-4 justify-end">
+              <button onClick={() => setStep("display")} className="px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+                Back
+              </button>
+              <button onClick={handleNext} className="px-6 py-3 rounded-lg bg-primary hover:bg-primary/80 transition-colors">
+                Continue
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === "survey" && (
+          <div className="space-y-8 animate-fade-in">
+            <div className="flex items-center gap-4 mb-8">
+              <Info className="w-12 h-12 text-primary" />
+              <h2 className="text-4xl font-bold">Quick Survey</h2>
+            </div>
+            
+            <div className="space-y-6">
+              <p className="text-muted-foreground mb-6">
+                Help us understand how you'll use UrbanShade OS (optional)
+              </p>
+
+              <div>
+                <label className="text-lg font-bold mb-3 block">What's your role?</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {["Facility Administrator", "Research Personnel", "Security Officer", "Engineer", "Medical Staff", "Just Exploring"].map(r => (
+                    <button
+                      key={r}
+                      onClick={() => setRole(r)}
+                      className={`p-4 rounded-lg border-2 transition-all text-left ${
+                        role === r 
+                          ? "bg-primary/20 border-primary" 
+                          : "bg-black/40 border-white/10 hover:border-white/30"
+                      }`}
+                    >
+                      <div className="font-bold text-sm">{r}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-lg font-bold mb-3 block">Experience level?</label>
+                <div className="grid grid-cols-3 gap-3">
+                  {["Beginner", "Intermediate", "Advanced"].map(exp => (
+                    <button
+                      key={exp}
+                      onClick={() => setExperience(exp)}
+                      className={`p-4 rounded-lg border-2 transition-all ${
+                        experience === exp 
+                          ? "bg-primary/20 border-primary" 
+                          : "bg-black/40 border-white/10 hover:border-white/30"
+                      }`}
+                    >
+                      <div className="font-bold text-center">{exp}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-lg font-bold mb-3 block">Primary purpose?</label>
+                <div className="space-y-2">
+                  {[
+                    "Facility planning & design",
+                    "Security & monitoring",
+                    "Research & experimentation",
+                    "Entertainment & exploration",
+                    "Learning & education"
+                  ].map(p => (
+                    <button
+                      key={p}
+                      onClick={() => setPurpose(p)}
+                      className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
+                        purpose === p 
+                          ? "bg-primary/20 border-primary" 
+                          : "bg-black/40 border-white/10 hover:border-white/30"
+                      }`}
+                    >
+                      <div className="font-bold">{p}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground text-center">
+                All responses are optional and stored locally only
+              </p>
+            </div>
+
+            <div className="flex gap-4 justify-end">
+              <button onClick={() => setStep("privacy")} className="px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
                 Back
               </button>
               <button onClick={handleNext} className="px-6 py-3 rounded-lg bg-primary hover:bg-primary/80 transition-colors">
@@ -220,11 +407,11 @@ export const OOBEScreen = ({ onComplete }: OOBEScreenProps) => {
 
         {step !== "welcome" && step !== "finish" && (
           <div className="flex gap-2 justify-center mt-8">
-            {["region", "time", "display"].map((s, i) => (
+            {["region", "time", "display", "privacy", "survey"].map((s, i) => (
               <div
                 key={s}
-                className={`h-2 w-16 rounded-full transition-all ${
-                  ["region", "time", "display"].indexOf(step) >= i
+                className={`h-2 w-12 rounded-full transition-all ${
+                  ["region", "time", "display", "privacy", "survey"].indexOf(step) >= i
                     ? "bg-primary"
                     : "bg-white/10"
                 }`}

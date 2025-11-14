@@ -13,6 +13,7 @@ import { MaintenanceMode } from "@/components/MaintenanceMode";
 import { LockdownScreen } from "@/components/LockdownScreen";
 import { FirstTimeTour } from "@/components/FirstTimeTour";
 import { RecoveryMode } from "@/components/RecoveryMode";
+import { DisclaimerScreen } from "@/components/DisclaimerScreen";
 import { OOBEScreen } from "@/components/OOBEScreen";
 
 const Index = () => {
@@ -40,6 +41,9 @@ const Index = () => {
   const [inRecoveryMode, setInRecoveryMode] = useState(false);
   const [oobeComplete, setOobeComplete] = useState(() => {
     return localStorage.getItem("urbanshade_oobe_complete") === "true";
+  });
+  const [disclaimerAccepted, setDisclaimerAccepted] = useState(() => {
+    return localStorage.getItem("urbanshade_disclaimer_accepted") === "true";
   });
 
   // Check if admin setup is complete and setup key listeners
@@ -248,6 +252,13 @@ const Index = () => {
     setLockdownMode(false);
     setLockdownProtocol("");
   };
+
+  if (!disclaimerAccepted) {
+    return <DisclaimerScreen onAccept={() => {
+      localStorage.setItem("urbanshade_disclaimer_accepted", "true");
+      setDisclaimerAccepted(true);
+    }} />;
+  }
 
   if (!adminSetupComplete) {
     return <InstallationScreen onComplete={handleInstallationComplete} />;
