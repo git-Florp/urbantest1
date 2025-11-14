@@ -14,7 +14,40 @@ interface CustomApp {
 }
 
 export const BiosScreen = ({ onExit }: BiosScreenProps) => {
-  const [selectedMenu, setSelectedMenu] = useState<"main" | "boot" | "security" | "advanced" | "apps">("main");
+  const [selectedMenu, setSelectedMenu] = useState<"main" | "boot" | "security" | "advanced" | "performance" | "hardware" | "apps">("main");
+  const [countdown, setCountdown] = useState(10);
+  const [exitRequested, setExitRequested] = useState(false);
+  
+  // BIOS Settings
+  const [bootOrder, setBootOrder] = useState(() => 
+    localStorage.getItem('bios_boot_order') || 'hdd,network,usb'
+  );
+  const [securityEnabled, setSecurityEnabled] = useState(() => 
+    localStorage.getItem('bios_security_enabled') !== 'false'
+  );
+  const [fastBoot, setFastBoot] = useState(() => 
+    localStorage.getItem('bios_fast_boot') === 'true'
+  );
+  const [biosPassword, setBiosPassword] = useState(() => 
+    localStorage.getItem('bios_password') || ''
+  );
+  const [cpuVirtualization, setCpuVirtualization] = useState(() =>
+    localStorage.getItem('bios_cpu_virtualization') === 'true'
+  );
+  const [overclocking, setOverclocking] = useState(() =>
+    localStorage.getItem('bios_overclocking') === 'true'
+  );
+  const [fanSpeed, setFanSpeed] = useState(() =>
+    localStorage.getItem('bios_fan_speed') || 'auto'
+  );
+  const [powerLimit, setPowerLimit] = useState(() =>
+    parseInt(localStorage.getItem('bios_power_limit') || '100')
+  );
+  const [customApps, setCustomApps] = useState<CustomApp[]>(() => {
+    const saved = localStorage.getItem('bios_custom_apps');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [uploadingApp, setUploadingApp] = useState(false);
   const [countdown, setCountdown] = useState(10);
   const [exitRequested, setExitRequested] = useState(false);
   
