@@ -66,7 +66,7 @@ export const DisclaimerScreen = ({ onAccept }: DisclaimerScreenProps) => {
                 Open Source Project
               </h4>
               <p className="mb-2">
-                This project is open source and available on GitHub:
+                This project is open source and available on GitHub, made by aswdbatch:
               </p>
               <a
                 href="https://github.com/aswdBatch/urbanshade-7e993958"
@@ -75,7 +75,7 @@ export const DisclaimerScreen = ({ onAccept }: DisclaimerScreenProps) => {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/20 border border-primary/30 hover:bg-primary/30 transition-colors"
               >
                 <Github className="w-4 h-4" />
-                View on GitHub
+                View source on Github (offsite)
               </a>
             </div>
           </div>
