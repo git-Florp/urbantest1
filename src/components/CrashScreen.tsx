@@ -42,16 +42,24 @@ export const CrashScreen = ({ onReboot, killedProcess, crashType = "kernel", cus
                       crashType === "virus" ? "text-green-500" :
                       "text-red-500";
 
+    const borderChar = "▮";
+    const borderTop = borderChar.repeat(80);
+    const borderBottom = borderChar.repeat(80);
+
     return (
       <div className={`fixed inset-0 ${bgClass} flex flex-col items-center justify-center text-white font-mono p-8 ${crashType === "virus" ? "animate-pulse" : ""}`}>
         <div className="max-w-4xl w-full space-y-8">
+          <div className={`text-center ${textClass} text-xs tracking-widest overflow-hidden whitespace-nowrap`}>
+            {borderTop}
+          </div>
+
           <div className="text-center space-y-4">
             <h1 className={`text-6xl font-bold tracking-wider ${textClass} ${crashType === "virus" ? "glitch-text" : ""}`}>
               {customData.title}
             </h1>
           </div>
 
-          <div className="glass-panel p-6 bg-black/30 border border-white/20">
+          <div className="p-6 bg-black/30 border-2 border-current" style={{ borderColor: textClass.includes('red') ? '#ef4444' : textClass.includes('purple') ? '#a855f7' : textClass.includes('orange') ? '#f97316' : textClass.includes('green') ? '#22c55e' : '#fff' }}>
             <pre className="text-sm whitespace-pre-wrap leading-relaxed">
               {customData.message}
             </pre>
@@ -66,10 +74,14 @@ export const CrashScreen = ({ onReboot, killedProcess, crashType = "kernel", cus
           <div className="flex justify-center">
             <button
               onClick={onReboot}
-              className="px-8 py-3 bg-primary text-background font-bold hover:bg-primary/80 transition-colors text-lg"
+              className="px-8 py-3 bg-primary text-background font-bold hover:bg-primary/80 transition-colors text-lg border-2 border-current"
             >
               [ REBOOT SYSTEM ]
             </button>
+          </div>
+
+          <div className={`text-center ${textClass} text-xs tracking-widest overflow-hidden whitespace-nowrap`}>
+            {borderBottom}
           </div>
         </div>
 
