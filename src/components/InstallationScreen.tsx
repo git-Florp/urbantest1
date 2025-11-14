@@ -6,7 +6,7 @@ interface InstallationScreenProps {
 }
 
 export const InstallationScreen = ({ onComplete }: InstallationScreenProps) => {
-  const [stage, setStage] = useState<"welcome" | "options" | "installing" | "settings" | "user-setup" | "rebooting">("welcome");
+  const [stage, setStage] = useState<"welcome" | "product-key" | "tos" | "options" | "installing" | "settings" | "user-setup" | "rebooting">("welcome");
   const [installProgress, setInstallProgress] = useState(0);
   const [installLogs, setInstallLogs] = useState<string[]>([]);
   const [installationType, setInstallationType] = useState<"standard" | "minimal" | "full">("standard");
@@ -20,6 +20,10 @@ export const InstallationScreen = ({ onComplete }: InstallationScreenProps) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  
+  // Product key and TOS
+  const [productKey, setProductKey] = useState("");
+  const [tosAccepted, setTosAccepted] = useState(false);
 
   const getInstallSteps = () => {
     const baseSteps = [
@@ -166,11 +170,195 @@ export const InstallationScreen = ({ onComplete }: InstallationScreenProps) => {
             </div>
 
             <button
-              onClick={() => setStage("options")}
+              onClick={() => setStage("product-key")}
               className="w-full px-6 py-3 rounded-lg bg-primary hover:bg-primary/80 text-black font-bold transition-all transform hover:scale-[1.02] active:scale-[0.98]"
             >
               BEGIN INSTALLATION
             </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (stage === "product-key") {
+    const validKeys = ["URBSH-2024-FACIL-MGMT", "DEMO-KEY-URBANSHADE", "TEST-INSTALL-KEY"];
+    const isValidKey = validKeys.includes(productKey.toUpperCase());
+
+    return (
+      <div className="fixed inset-0 bg-black flex items-center justify-center text-white font-mono p-4">
+        <div className="w-full max-w-2xl">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-primary">PRODUCT KEY</h2>
+            <p className="text-sm text-muted-foreground mt-2">Enter your 25-character product key</p>
+          </div>
+
+          <div className="glass-panel p-8 space-y-6">
+            <div className="space-y-4">
+              <label className="block">
+                <span className="text-sm font-bold text-primary mb-2 block">Product Key</span>
+                <input
+                  type="text"
+                  value={productKey}
+                  onChange={(e) => setProductKey(e.target.value.toUpperCase())}
+                  placeholder="XXXXX-XXXX-XXXXX-XXXX"
+                  className="w-full px-4 py-3 rounded-lg bg-black/50 border border-white/10 focus:border-primary focus:outline-none text-center text-lg font-mono tracking-wider"
+                  maxLength={25}
+                />
+              </label>
+
+              {productKey && !isValidKey && (
+                <div className="text-xs text-destructive">
+                  Invalid product key. Try: URBSH-2024-FACIL-MGMT
+                </div>
+              )}
+
+              {isValidKey && (
+                <div className="text-xs text-green-500 flex items-center gap-2">
+                  <Check className="w-4 h-4" />
+                  Valid product key
+                </div>
+              )}
+
+              <div className="p-4 rounded-lg bg-muted/10 border border-muted/30 text-xs text-muted-foreground">
+                <p className="font-bold mb-2">Demo Keys (for testing):</p>
+                <ul className="space-y-1 font-mono">
+                  <li>• URBSH-2024-FACIL-MGMT</li>
+                  <li>• DEMO-KEY-URBANSHADE</li>
+                  <li>• TEST-INSTALL-KEY</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={() => setStage("welcome")}
+                className="flex-1 px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 transition-all"
+              >
+                Back
+              </button>
+              <button
+                onClick={() => setStage("tos")}
+                disabled={!isValidKey}
+                className="flex-1 px-6 py-3 rounded-lg bg-primary hover:bg-primary/80 text-black font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (stage === "tos") {
+    return (
+      <div className="fixed inset-0 bg-black flex items-center justify-center text-white font-mono p-4">
+        <div className="w-full max-w-3xl">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-primary">TERMS OF SERVICE</h2>
+            <p className="text-sm text-muted-foreground mt-2">Please read carefully before proceeding</p>
+          </div>
+
+          <div className="glass-panel p-8 space-y-6">
+            <div className="h-96 overflow-y-auto p-4 rounded-lg bg-black/50 border border-white/10 text-xs space-y-3">
+              <h3 className="font-bold text-primary text-sm">URBANSHADE OPERATING SYSTEM LICENSE AGREEMENT</h3>
+              
+              <p className="text-muted-foreground">
+                This License Agreement ("Agreement") is between you and Urbanshade Corporation ("Urbanshade").
+              </p>
+
+              <div className="space-y-2">
+                <p className="font-bold text-primary">1. ACCEPTANCE OF TERMS</p>
+                <p className="text-muted-foreground">
+                  By installing, copying, or using this software, you agree to be bound by the terms of this Agreement.
+                  If you do not agree, do not install or use the software.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <p className="font-bold text-primary">2. CLASSIFIED SYSTEM OPERATIONS</p>
+                <p className="text-muted-foreground">
+                  This software is designed for deep-sea facility management and classified operations. 
+                  Unauthorized access, distribution, or disclosure of system information is strictly prohibited 
+                  and may result in severe penalties.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <p className="font-bold text-primary">3. SECURITY AND CONTAINMENT</p>
+                <p className="text-muted-foreground">
+                  Users must maintain all security protocols and containment procedures at all times. 
+                  Failure to follow safety guidelines may result in catastrophic events.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <p className="font-bold text-primary">4. DATA COLLECTION</p>
+                <p className="text-muted-foreground">
+                  This system collects operational data including but not limited to: facility monitoring,
+                  personnel tracking, specimen containment status, and system diagnostics.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <p className="font-bold text-primary">5. WARRANTY DISCLAIMER</p>
+                <p className="text-muted-foreground">
+                  This software is provided "AS IS" without warranty of any kind. Urbanshade Corporation 
+                  shall not be liable for any damages arising from the use of this software, including but 
+                  not limited to containment breaches, system failures, or entity escapes.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <p className="font-bold text-primary">6. TERMINATION</p>
+                <p className="text-muted-foreground">
+                  This license is effective until terminated. Urbanshade may terminate this license at any time 
+                  if you fail to comply with its terms.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <p className="font-bold text-destructive">⚠ EMERGENCY PROTOCOLS</p>
+                <p className="text-muted-foreground">
+                  In the event of a containment breach or system compromise, follow all emergency protocols 
+                  immediately. Personnel safety is secondary to containment integrity.
+                </p>
+              </div>
+
+              <p className="text-muted-foreground mt-6">
+                © 2024 Urbanshade Corporation. All rights reserved.
+              </p>
+            </div>
+
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={tosAccepted}
+                onChange={(e) => setTosAccepted(e.target.checked)}
+                className="w-5 h-5 mt-1"
+              />
+              <span className="text-sm">
+                I have read and agree to the Terms of Service and understand the risks associated 
+                with operating this classified system.
+              </span>
+            </label>
+
+            <div className="flex gap-4">
+              <button
+                onClick={() => setStage("product-key")}
+                className="flex-1 px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 transition-all"
+              >
+                Back
+              </button>
+              <button
+                onClick={() => setStage("options")}
+                disabled={!tosAccepted}
+                className="flex-1 px-6 py-3 rounded-lg bg-primary hover:bg-primary/80 text-black font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Accept & Continue
+              </button>
+            </div>
           </div>
         </div>
       </div>

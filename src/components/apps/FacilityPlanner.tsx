@@ -1,18 +1,27 @@
-import { useState, useEffect } from "react";
-import { Grid3x3, Plus, Trash2, Move, Square, Save, FolderOpen, Settings } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Grid3x3, Plus, Trash2, Move, Square, Save, FolderOpen, Settings, Pen, DoorOpen, Eraser } from "lucide-react";
 import { toast } from "sonner";
 import { saveState, loadState } from "@/lib/persistence";
 
 interface PlannerRoom {
   id: string;
   name: string;
-  type: "control" | "research" | "containment" | "storage" | "medical" | "engineering" | "corridor" | "intersection" | "custom";
+  type: "control" | "research" | "containment" | "storage" | "medical" | "engineering" | "corridor" | "intersection" | "custom" | "door";
   x: number;
   y: number;
   width: number;
   height: number;
   connections: string[];
   isHallway?: boolean;
+  isDoor?: boolean;
+  rotation?: number;
+}
+
+interface DrawingPath {
+  id: string;
+  points: { x: number; y: number }[];
+  color: string;
+  width: number;
 }
 
 interface HallwaySettings {
@@ -21,8 +30,12 @@ interface HallwaySettings {
 }
 
 export const FacilityPlanner = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [rooms, setRooms] = useState<PlannerRoom[]>(() =>
     loadState('facility_planner_rooms', [])
+  );
+  const [drawings, setDrawings] = useState<DrawingPath[]>(() =>
+    loadState('facility_planner_drawings', [])
   );
   const [selectedRoom, setSelectedRoom] = useState<PlannerRoom | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -34,29 +47,42 @@ export const FacilityPlanner = () => {
   const [hallwaySettings, setHallwaySettings] = useState<HallwaySettings>(() =>
     loadState('facility_planner_hallway_settings', { autoGenerate: true, hallwayWidth: 40 })
   );
+  const [drawMode, setDrawMode] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [currentPath, setCurrentPath] = useState<{ x: number; y: number }[]>([]);
+  const [drawColor, setDrawColor] = useState("#00d9ff");
+  const [drawWidth, setDrawWidth] = useState(3);
+  const [eraserMode, setEraserMode] = useState(false);
 
   useEffect(() => {
     saveState('facility_planner_rooms', rooms);
   }, [rooms]);
 
   useEffect(() => {
+    saveState('facility_planner_drawings', drawings);
+  }, [drawings]);
+
+  useEffect(() => {
     saveState('facility_planner_hallway_settings', hallwaySettings);
   }, [hallwaySettings]);
 
   const addRoom = (type: PlannerRoom["type"]) => {
+    const isDoorType = type === "door";
     const newRoom: PlannerRoom = {
       id: `room-${Date.now()}`,
-      name: `${type.charAt(0).toUpperCase() + type.slice(1)} ${rooms.length + 1}`,
+      name: isDoorType ? "Door" : `${type.charAt(0).toUpperCase() + type.slice(1)} ${rooms.length + 1}`,
       type,
       x: 100 + Math.random() * 200,
       y: 100 + Math.random() * 200,
-      width: 120,
-      height: 80,
-      connections: []
+      width: isDoorType ? 40 : 120,
+      height: isDoorType ? 10 : 80,
+      connections: [],
+      isDoor: isDoorType,
+      rotation: 0
     };
     setRooms([...rooms, newRoom]);
     setSelectedRoom(newRoom);
-    toast.success(`Added ${type} room`);
+    toast.success(`Added ${type}${isDoorType ? "" : " room"}`);
   };
 
   const deleteRoom = (id: string) => {
@@ -86,7 +112,12 @@ export const FacilityPlanner = () => {
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (selectedRoom) {
+    if (drawMode && isDrawing) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setCurrentPath([...currentPath, { x, y }]);
+    } else if (selectedRoom) {
       if (isDragging) {
         updateRoom(selectedRoom.id, {
           x: Math.max(0, e.clientX - dragStart.x),
@@ -105,8 +136,65 @@ export const FacilityPlanner = () => {
   };
 
   const handleMouseUp = () => {
+    if (isDrawing && currentPath.length > 0) {
+      if (eraserMode) {
+        // Erase any paths that intersect with the eraser
+        setDrawings(prevDrawings => 
+          prevDrawings.filter(path => {
+            return !path.points.some(point => 
+              currentPath.some(eraserPoint => 
+                Math.abs(point.x - eraserPoint.x) < 15 && Math.abs(point.y - eraserPoint.y) < 15
+              )
+            );
+          })
+        );
+      } else {
+        const newPath: DrawingPath = {
+          id: `path-${Date.now()}`,
+          points: currentPath,
+          color: drawColor,
+          width: drawWidth
+        };
+        setDrawings([...drawings, newPath]);
+      }
+      setCurrentPath([]);
+      setIsDrawing(false);
+    }
     setIsDragging(false);
     setIsResizing(false);
+  };
+
+  const handleCanvasMouseDown = (e: React.MouseEvent) => {
+    if (drawMode) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setIsDrawing(true);
+      setCurrentPath([{ x, y }]);
+    }
+  };
+
+  const clearDrawings = () => {
+    setDrawings([]);
+    toast.success("Drawings cleared");
+  };
+
+  const exportToFacilityMap = () => {
+    const facilityMapData = rooms.filter(r => !r.isHallway && !r.isDoor).map(room => ({
+      id: room.id,
+      name: room.name,
+      type: room.type as any,
+      status: "operational" as const,
+      personnel: 0,
+      x: room.x,
+      y: room.y,
+      width: room.width,
+      height: room.height,
+      connections: room.connections
+    }));
+    
+    localStorage.setItem('facility_map_import', JSON.stringify(facilityMapData));
+    toast.success("Design exported! Open Facility Map to import.");
   };
 
   const generateHallway = (room1: PlannerRoom, room2: PlannerRoom) => {
@@ -305,20 +393,15 @@ export const FacilityPlanner = () => {
             <h2 className="font-bold">Facility Planner</h2>
           </div>
 
-          <div className="flex gap-2 mb-4">
-            <button
-              onClick={saveDesign}
-              className="flex-1 px-3 py-2 rounded-lg bg-primary/20 border border-primary/30 hover:bg-primary/30 transition-colors text-xs flex items-center justify-center gap-2"
-            >
-              <Save className="w-4 h-4" />
-              Save
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            <button onClick={saveDesign} className="px-3 py-2 rounded-lg bg-primary/20 border border-primary/30 hover:bg-primary/30 transition-colors text-xs flex items-center justify-center gap-2">
+              <Save className="w-4 h-4" />Save
             </button>
-            <button
-              onClick={loadDesign}
-              className="flex-1 px-3 py-2 rounded-lg bg-primary/20 border border-primary/30 hover:bg-primary/30 transition-colors text-xs flex items-center justify-center gap-2"
-            >
-              <FolderOpen className="w-4 h-4" />
-              Load
+            <button onClick={loadDesign} className="px-3 py-2 rounded-lg bg-primary/20 border border-primary/30 hover:bg-primary/30 transition-colors text-xs flex items-center justify-center gap-2">
+              <FolderOpen className="w-4 h-4" />Load
+            </button>
+            <button onClick={exportToFacilityMap} className="col-span-2 px-3 py-2 rounded-lg bg-green-500/20 border border-green-500/30 hover:bg-green-500/30 transition-colors text-xs flex items-center gap-2">
+              <Grid3x3 className="w-4 h-4" />Export to Facility Map
             </button>
           </div>
 
@@ -367,7 +450,29 @@ export const FacilityPlanner = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          <div className="text-xs text-muted-foreground font-bold mb-2">ADD ROOM</div>
+          <div className="text-xs text-muted-foreground font-bold mb-2">DRAWING TOOLS</div>
+          
+          <button onClick={() => { setDrawMode(!drawMode); setConnectMode(false); setEraserMode(false); }} className={`w-full px-3 py-2 rounded-lg mb-2 ${drawMode && !eraserMode ? "bg-primary/30 border-primary" : "bg-white/10"} border transition-all text-xs flex items-center gap-2`}>
+            <Pen className="w-4 h-4" />{drawMode && !eraserMode ? "Drawing..." : "Draw"}
+          </button>
+
+          <button onClick={() => { setEraserMode(!eraserMode); setDrawMode(eraserMode ? false : true); setConnectMode(false); }} className={`w-full px-3 py-2 rounded-lg mb-2 ${eraserMode ? "bg-destructive/30 border-destructive" : "bg-white/10"} border transition-all text-xs flex items-center gap-2`}>
+            <Eraser className="w-4 h-4" />{eraserMode ? "Erasing..." : "Eraser"}
+          </button>
+
+          {drawMode && (
+            <div className="glass-panel p-3 mb-4 space-y-2">
+              <div className="text-xs text-primary font-bold">COLOR & WIDTH</div>
+              <input type="color" value={drawColor} onChange={(e) => setDrawColor(e.target.value)} className="w-full h-8 rounded cursor-pointer" />
+              <div className="flex items-center gap-2">
+                <input type="range" min="1" max="10" value={drawWidth} onChange={(e) => setDrawWidth(parseInt(e.target.value))} className="flex-1" />
+                <span className="text-xs">{drawWidth}px</span>
+              </div>
+              <button onClick={clearDrawings} className="w-full px-2 py-1 rounded bg-destructive/20 border border-destructive/30 hover:bg-destructive/30 text-xs">Clear Drawings</button>
+            </div>
+          )}
+
+          <div className="text-xs text-muted-foreground font-bold mb-2">ROOM TOOLS</div>
           
           {[
             { type: "control" as const, label: "Control Room" },
@@ -378,7 +483,8 @@ export const FacilityPlanner = () => {
             { type: "engineering" as const, label: "Engineering" },
             { type: "corridor" as const, label: "Corridor" },
             { type: "intersection" as const, label: "Intersection" },
-            { type: "custom" as const, label: "Custom Room" }
+            { type: "custom" as const, label: "Custom Room" },
+            { type: "door" as const, label: "Door" }
           ].map(({ type, label }) => (
             <button
               key={type}
@@ -459,7 +565,8 @@ export const FacilityPlanner = () => {
         className="flex-1 relative overflow-auto bg-black/40"
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onClick={() => !isDragging && !isResizing && setSelectedRoom(null)}
+        onMouseDown={handleCanvasMouseDown}
+        onClick={() => !isDragging && !isResizing && !drawMode && setSelectedRoom(null)}
       >
         <div className="p-4">
           <div className="relative bg-black/60 rounded-lg border border-white/10 p-4" style={{ minHeight: "800px", minWidth: "1000px" }}>
@@ -478,6 +585,30 @@ export const FacilityPlanner = () => {
             {/* Connection lines */}
             <svg className="absolute inset-0 pointer-events-none" style={{ width: "100%", height: "100%" }}>
               {renderConnections()}
+              {/* Drawings */}
+              {drawings.map(path => (
+                <polyline
+                  key={path.id}
+                  points={path.points.map(p => `${p.x},${p.y}`).join(' ')}
+                  stroke={path.color}
+                  strokeWidth={path.width}
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              ))}
+              {/* Current drawing */}
+              {currentPath.length > 0 && (
+                <polyline
+                  points={currentPath.map(p => `${p.x},${p.y}`).join(' ')}
+                  stroke={eraserMode ? "#ff0000" : drawColor}
+                  strokeWidth={eraserMode ? drawWidth * 2 : drawWidth}
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  opacity={eraserMode ? "0.5" : "1"}
+                />
+              )}
             </svg>
 
             {/* Rooms */}

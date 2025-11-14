@@ -13,12 +13,14 @@ import { MaintenanceMode } from "@/components/MaintenanceMode";
 import { LockdownScreen } from "@/components/LockdownScreen";
 import { FirstTimeTour } from "@/components/FirstTimeTour";
 import { RecoveryMode } from "@/components/RecoveryMode";
+import { DisclaimerScreen } from "@/components/DisclaimerScreen";
+import { OOBEScreen } from "@/components/OOBEScreen";
 
 const Index = () => {
   const [adminSetupComplete, setAdminSetupComplete] = useState(false);
   const [biosComplete, setBiosComplete] = useState(() => {
-    // Check if user wants to skip BIOS (can be set via localStorage or pressing ESC quickly)
-    return localStorage.getItem('urbanshade_skip_bios') === 'true';
+    // Don't boot to BIOS by default - skip unless user explicitly enters it
+    return true;
   });
   const [booted, setBooted] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -37,6 +39,12 @@ const Index = () => {
   const [safeMode, setSafeMode] = useState(false);
   const [needsRecovery, setNeedsRecovery] = useState(false);
   const [inRecoveryMode, setInRecoveryMode] = useState(false);
+  const [oobeComplete, setOobeComplete] = useState(() => {
+    return localStorage.getItem("urbanshade_oobe_complete") === "true";
+  });
+  const [disclaimerAccepted, setDisclaimerAccepted] = useState(() => {
+    return localStorage.getItem("urbanshade_disclaimer_accepted") === "true";
+  });
 
   // Check if admin setup is complete and setup key listeners
   useEffect(() => {
@@ -61,11 +69,13 @@ const Index = () => {
       setAdminSetupComplete(false);
     }
 
-    // Space key for recovery mode
+    // DEL key to access BIOS, F2 for recovery
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "Space" && loggedIn && !lockdownMode && !crashed && !shuttingDown && !rebooting) {
+      // F2 for recovery mode during boot
+      if (e.key === "F2" && !booted && !inRecoveryMode) {
         e.preventDefault();
-        setRebooting(true);
+        setInRecoveryMode(true);
+        toast.info("Entering Recovery Mode...");
       }
       // DEL key to access BIOS (before boot)
       if ((e.key === "Delete" || e.key === "Del") && !booted && biosComplete) {
@@ -169,6 +179,11 @@ const Index = () => {
 
     localStorage.setItem("urbanshade_admin", JSON.stringify(fullAdminData));
     setAdminSetupComplete(true);
+    
+    // Show OOBE after installation if not already complete
+    if (!oobeComplete) {
+      localStorage.removeItem("urbanshade_oobe_complete");
+    }
   };
 
   const handleShutdownComplete = () => {
@@ -238,6 +253,13 @@ const Index = () => {
     setLockdownProtocol("");
   };
 
+  if (!disclaimerAccepted) {
+    return <DisclaimerScreen onAccept={() => {
+      localStorage.setItem("urbanshade_disclaimer_accepted", "true");
+      setDisclaimerAccepted(true);
+    }} />;
+  }
+
   if (!adminSetupComplete) {
     return <InstallationScreen onComplete={handleInstallationComplete} />;
   }
@@ -290,6 +312,11 @@ const Index = () => {
 
   if (!loggedIn) {
     return <UserSelectionScreen onLogin={() => setLoggedIn(true)} />;
+  }
+
+  // Show OOBE after first login
+  if (!oobeComplete) {
+    return <OOBEScreen onComplete={() => setOobeComplete(true)} />;
   }
 
   return (
