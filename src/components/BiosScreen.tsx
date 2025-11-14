@@ -14,7 +14,7 @@ interface CustomApp {
 }
 
 export const BiosScreen = ({ onExit }: BiosScreenProps) => {
-  const [selectedMenu, setSelectedMenu] = useState<"main" | "boot" | "security" | "advanced" | "apps">("main");
+  const [selectedMenu, setSelectedMenu] = useState<"main" | "boot" | "security" | "advanced" | "performance" | "hardware" | "apps">("main");
   const [countdown, setCountdown] = useState(10);
   const [exitRequested, setExitRequested] = useState(false);
   
@@ -36,6 +36,31 @@ export const BiosScreen = ({ onExit }: BiosScreenProps) => {
     return saved ? JSON.parse(saved) : [];
   });
   const [uploadingApp, setUploadingApp] = useState(false);
+
+  // Performance settings
+  const [cpuVirtualization, setCpuVirtualization] = useState(() =>
+    localStorage.getItem('bios_cpu_virtualization') !== 'false'
+  );
+  const [overclocking, setOverclocking] = useState(() =>
+    localStorage.getItem('bios_overclocking') === 'true'
+  );
+  const [fanSpeed, setFanSpeed] = useState(() =>
+    localStorage.getItem('bios_fan_speed') || 'auto'
+  );
+  const [powerLimit, setPowerLimit] = useState(() =>
+    parseInt(localStorage.getItem('bios_power_limit') || '100')
+  );
+
+  // Hardware settings
+  const [usbPorts, setUsbPorts] = useState(() =>
+    localStorage.getItem('bios_usb_ports') !== 'false'
+  );
+  const [audio, setAudio] = useState(() =>
+    localStorage.getItem('bios_audio') !== 'false'
+  );
+  const [networkController, setNetworkController] = useState(() =>
+    localStorage.getItem('bios_network') !== 'false'
+  );
 
   // Exit countdown
   useEffect(() => {
@@ -325,6 +350,194 @@ export const BiosScreen = ({ onExit }: BiosScreenProps) => {
     </div>
   );
 
+  const renderPerformance = () => (
+    <div className="space-y-4">
+      <div className="text-xl font-bold text-primary mb-4">PERFORMANCE CONFIGURATION</div>
+
+      <div className="glass-panel p-4">
+        <button
+          onClick={() => {
+            const newValue = !cpuVirtualization;
+            setCpuVirtualization(newValue);
+            saveSetting('cpu_virtualization', newValue);
+          }}
+          className="w-full px-4 py-3 rounded text-left text-sm border-2 border-white/10 hover:border-primary/30 transition-all"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-bold">CPU Virtualization (VT-x)</div>
+              <div className="text-xs text-muted-foreground">Enable hardware virtualization support</div>
+            </div>
+            <div className={`text-2xl ${cpuVirtualization ? 'text-green-400' : 'text-muted-foreground'}`}>
+              {cpuVirtualization ? <Check /> : <X />}
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <div className="glass-panel p-4">
+        <button
+          onClick={() => {
+            const newValue = !overclocking;
+            setOverclocking(newValue);
+            saveSetting('overclocking', newValue);
+            if (newValue) toast.warning("⚠ Overclocking enabled - Monitor temperatures!");
+          }}
+          className="w-full px-4 py-3 rounded text-left text-sm border-2 border-white/10 hover:border-primary/30 transition-all"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-bold">CPU Overclocking</div>
+              <div className="text-xs text-muted-foreground">Run processor above rated speed</div>
+            </div>
+            <div className={`text-2xl ${overclocking ? 'text-red-400' : 'text-muted-foreground'}`}>
+              {overclocking ? <Zap /> : <X />}
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <div className="glass-panel p-4">
+        <label className="block text-sm font-bold text-primary mb-3">Fan Speed Control</label>
+        <div className="space-y-2">
+          {[
+            { value: 'silent', label: 'Silent (Low Speed)' },
+            { value: 'auto', label: 'Auto (Balanced)' },
+            { value: 'performance', label: 'Performance (High Speed)' },
+            { value: 'max', label: 'Maximum (100%)' }
+          ].map(option => (
+            <button
+              key={option.value}
+              onClick={() => {
+                setFanSpeed(option.value);
+                saveSetting('fan_speed', option.value);
+              }}
+              className={`w-full px-4 py-2 rounded text-left text-sm border-2 transition-all ${
+                fanSpeed === option.value 
+                  ? 'border-primary bg-primary/10' 
+                  : 'border-white/10 hover:border-white/20'
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-panel p-4">
+        <label className="block text-sm font-bold text-primary mb-3">Power Limit: {powerLimit}W</label>
+        <input
+          type="range"
+          min="50"
+          max="150"
+          value={powerLimit}
+          onChange={(e) => {
+            const val = parseInt(e.target.value);
+            setPowerLimit(val);
+            saveSetting('power_limit', val.toString());
+          }}
+          className="w-full"
+        />
+        <div className="flex justify-between text-xs text-muted-foreground mt-2">
+          <span>50W (Eco)</span>
+          <span>150W (Extreme)</span>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderHardware = () => (
+    <div className="space-y-4">
+      <div className="text-xl font-bold text-primary mb-4">HARDWARE CONFIGURATION</div>
+
+      <div className="glass-panel p-4">
+        <button
+          onClick={() => {
+            const newValue = !usbPorts;
+            setUsbPorts(newValue);
+            saveSetting('usb_ports', newValue);
+          }}
+          className="w-full px-4 py-3 rounded text-left text-sm border-2 border-white/10 hover:border-primary/30 transition-all"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-bold">USB Controllers</div>
+              <div className="text-xs text-muted-foreground">Enable USB 2.0/3.0 ports</div>
+            </div>
+            <div className={`text-2xl ${usbPorts ? 'text-green-400' : 'text-red-400'}`}>
+              {usbPorts ? <Check /> : <X />}
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <div className="glass-panel p-4">
+        <button
+          onClick={() => {
+            const newValue = !audio;
+            setAudio(newValue);
+            saveSetting('audio', newValue);
+          }}
+          className="w-full px-4 py-3 rounded text-left text-sm border-2 border-white/10 hover:border-primary/30 transition-all"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-bold">Onboard Audio</div>
+              <div className="text-xs text-muted-foreground">High Definition Audio Device</div>
+            </div>
+            <div className={`text-2xl ${audio ? 'text-green-400' : 'text-red-400'}`}>
+              {audio ? <Check /> : <X />}
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <div className="glass-panel p-4">
+        <button
+          onClick={() => {
+            const newValue = !networkController;
+            setNetworkController(newValue);
+            saveSetting('network', newValue);
+          }}
+          className="w-full px-4 py-3 rounded text-left text-sm border-2 border-white/10 hover:border-primary/30 transition-all"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-bold">Network Controller</div>
+              <div className="text-xs text-muted-foreground">Gigabit Ethernet Adapter</div>
+            </div>
+            <div className={`text-2xl ${networkController ? 'text-green-400' : 'text-red-400'}`}>
+              {networkController ? <Check /> : <X />}
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <div className="glass-panel p-4">
+        <div className="text-sm font-bold text-primary mb-3">Hardware Information</div>
+        <div className="space-y-2 text-xs">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">BIOS Version:</span>
+            <span>3.7.2-HADAL</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Firmware:</span>
+            <span>UEFI</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Chipset:</span>
+            <span>URBANSHADE HPU-8000</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">SATA Mode:</span>
+            <span>AHCI</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+
   const renderAdvanced = () => (
     <div className="space-y-4">
       <div className="text-xl font-bold text-primary mb-4">ADVANCED OPTIONS</div>
@@ -518,7 +731,8 @@ export const BiosScreen = ({ onExit }: BiosScreenProps) => {
               { id: 'main' as const, label: 'Main', icon: <Settings /> },
               { id: 'boot' as const, label: 'Boot', icon: <HardDrive /> },
               { id: 'security' as const, label: 'Security', icon: <Shield /> },
-              { id: 'advanced' as const, label: 'Advanced', icon: <Zap /> },
+              { id: 'performance' as const, label: 'Performance', icon: <Zap /> },
+              { id: 'hardware' as const, label: 'Hardware', icon: <HardDrive /> },
               { id: 'apps' as const, label: 'Custom Apps', icon: <FileCode /> }
             ].map(item => (
               <button
@@ -542,6 +756,8 @@ export const BiosScreen = ({ onExit }: BiosScreenProps) => {
           {selectedMenu === 'main' && renderMain()}
           {selectedMenu === 'boot' && renderBoot()}
           {selectedMenu === 'security' && renderSecurity()}
+          {selectedMenu === 'performance' && renderPerformance()}
+          {selectedMenu === 'hardware' && renderHardware()}
           {selectedMenu === 'advanced' && renderAdvanced()}
           {selectedMenu === 'apps' && renderApps()}
         </div>
