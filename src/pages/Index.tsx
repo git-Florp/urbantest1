@@ -19,6 +19,12 @@ import { OOBEScreen } from "@/components/OOBEScreen";
 const Index = () => {
   const [adminSetupComplete, setAdminSetupComplete] = useState(false);
   const [biosComplete, setBiosComplete] = useState(() => {
+    // Check if we should reboot to BIOS
+    const rebootToBios = localStorage.getItem("urbanshade_reboot_to_bios");
+    if (rebootToBios === "true") {
+      localStorage.removeItem("urbanshade_reboot_to_bios");
+      return false;
+    }
     // Don't boot to BIOS by default - skip unless user explicitly enters it
     return true;
   });

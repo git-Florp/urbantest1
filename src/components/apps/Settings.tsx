@@ -242,6 +242,18 @@ export const Settings = () => {
                 <Button variant="outline" className="w-full justify-start">System protection</Button>
                 <Button variant="outline" className="w-full justify-start">Remote settings</Button>
                 <Button variant="outline" className="w-full justify-start">Environment variables</Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => {
+                    localStorage.setItem("urbanshade_reboot_to_bios", "true");
+                    toast.success("Rebooting to BIOS Setup...");
+                    setTimeout(() => window.location.reload(), 1000);
+                  }}
+                >
+                  <Power className="w-4 h-4 mr-2" />
+                  Reboot to BIOS
+                </Button>
               </div>
             </Card>
 
@@ -308,7 +320,13 @@ export const Settings = () => {
               <div className="space-y-4">
                 <Slider 
                   value={brightness} 
-                  onValueChange={(value) => { setBrightness(value); handleSave("settings_brightness", value); }}
+                  onValueChange={(value) => { 
+                    setBrightness(value); 
+                    handleSave("settings_brightness", value);
+                    // Apply brightness
+                    const nightLightFilter = nightLight ? 'sepia(30%) saturate(50%)' : '';
+                    document.body.style.filter = `brightness(${value[0]}%) ${nightLightFilter}`.trim();
+                  }}
                   max={100} 
                   step={1}
                   className="w-full"
@@ -322,7 +340,14 @@ export const Settings = () => {
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Theme</label>
-                  <Select value={theme} onValueChange={(value) => { setTheme(value); handleSave("settings_theme", value); }}>
+                  <Select value={theme} onValueChange={(value) => { 
+                    setTheme(value); 
+                    handleSave("settings_theme", value);
+                    document.documentElement.classList.remove('light', 'dark');
+                    if (value !== 'auto') {
+                      document.documentElement.classList.add(value);
+                    }
+                  }}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -338,7 +363,11 @@ export const Settings = () => {
                     <div className="font-medium">Animations</div>
                     <div className="text-sm text-muted-foreground">Enable smooth transitions</div>
                   </div>
-                  <Switch checked={animations} onCheckedChange={(checked) => { setAnimations(checked); handleSave("settings_animations", checked); }} />
+                  <Switch checked={animations} onCheckedChange={(checked) => { 
+                    setAnimations(checked); 
+                    handleSave("settings_animations", checked);
+                    document.documentElement.style.setProperty('--animation-duration', checked ? '0.3s' : '0s');
+                  }} />
                 </div>
               </div>
             </Card>
@@ -371,7 +400,12 @@ export const Settings = () => {
                     <div className="font-medium">Night light</div>
                     <div className="text-sm text-muted-foreground">Reduce blue light at night</div>
                   </div>
-                  <Switch checked={nightLight} onCheckedChange={(checked) => { setNightLight(checked); handleSave("settings_night_light", checked); }} />
+                  <Switch checked={nightLight} onCheckedChange={(checked) => { 
+                    setNightLight(checked); 
+                    handleSave("settings_night_light", checked);
+                    const nightLightFilter = checked ? 'sepia(30%) saturate(50%)' : '';
+                    document.body.style.filter = `brightness(${brightness[0]}%) ${nightLightFilter}`.trim();
+                  }} />
                 </div>
               </div>
             </Card>
@@ -458,13 +492,20 @@ export const Settings = () => {
               <h3 className="font-semibold mb-4">Volume</h3>
               <div className="space-y-4">
                 <Slider 
-                  value={volume} 
-                  onValueChange={(value) => { setVolume(value); handleSave("settings_volume", value); }}
+                  value={muteEnabled ? [0] : volume} 
+                  onValueChange={(value) => { 
+                    setVolume(value); 
+                    handleSave("settings_volume", value);
+                    if (value[0] > 0 && muteEnabled) {
+                      setMuteEnabled(false);
+                      handleSave("settings_mute", false);
+                    }
+                  }}
                   max={100} 
                   step={1}
                   className="w-full"
                 />
-                <div className="text-sm text-muted-foreground text-right">{volume[0]}%</div>
+                <div className="text-sm text-muted-foreground text-right">{muteEnabled ? 0 : volume[0]}%</div>
                 <div className="flex items-center justify-between pt-2">
                   <div className="font-medium">Mute</div>
                   <Switch checked={muteEnabled} onCheckedChange={(checked) => { setMuteEnabled(checked); handleSave("settings_mute", checked); }} />
