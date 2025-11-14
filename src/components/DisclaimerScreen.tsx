@@ -23,7 +23,7 @@ export const DisclaimerScreen = ({ onAccept }: DisclaimerScreenProps) => {
             <div className="space-y-2">
               <h3 className="font-bold text-yellow-500 text-lg">IMPORTANT DISCLAIMER</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                This is a <strong>fictional simulation</strong> and entertainment project. 
+                This is a <strong>Fictional Operating system</strong> for fun and laughs.
                 UrbanShade OS is not a real operating system and does not interact with your actual computer or files.
               </p>
             </div>
@@ -34,7 +34,7 @@ export const DisclaimerScreen = ({ onAccept }: DisclaimerScreenProps) => {
               <h4 className="font-bold text-primary mb-2">🎮 What This Is:</h4>
               <ul className="space-y-1 ml-4">
                 <li>• A web-based simulation of a fictional facility OS</li>
-                <li>• Inspired by games and sci-fi themes</li>
+                <li>• Inspired by Urbanshade from Pressure</li>
                 <li>• All features are simulated client-side in your browser</li>
                 <li>• No real files, processes, or system operations</li>
               </ul>
@@ -46,7 +46,7 @@ export const DisclaimerScreen = ({ onAccept }: DisclaimerScreenProps) => {
                 <li>• All data is stored locally in your browser using <code className="bg-black/50 px-1 rounded">localStorage</code></li>
                 <li>• No data is sent to external servers</li>
                 <li>• Your settings and progress are saved in your browser only</li>
-                <li>• Clearing browser data will reset the simulation</li>
+                <li>• <strong>Clearing browser data will reset the simulation</strong></li>
               </ul>
             </div>
 
