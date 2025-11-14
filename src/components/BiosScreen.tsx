@@ -48,27 +48,6 @@ export const BiosScreen = ({ onExit }: BiosScreenProps) => {
     return saved ? JSON.parse(saved) : [];
   });
   const [uploadingApp, setUploadingApp] = useState(false);
-  const [countdown, setCountdown] = useState(10);
-  const [exitRequested, setExitRequested] = useState(false);
-  
-  // BIOS Settings
-  const [bootOrder, setBootOrder] = useState(() => 
-    localStorage.getItem('bios_boot_order') || 'hdd,network,usb'
-  );
-  const [securityEnabled, setSecurityEnabled] = useState(() => 
-    localStorage.getItem('bios_security_enabled') !== 'false'
-  );
-  const [fastBoot, setFastBoot] = useState(() => 
-    localStorage.getItem('bios_fast_boot') === 'true'
-  );
-  const [biosPassword, setBiosPassword] = useState(() => 
-    localStorage.getItem('bios_password') || ''
-  );
-  const [customApps, setCustomApps] = useState<CustomApp[]>(() => {
-    const saved = localStorage.getItem('bios_custom_apps');
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [uploadingApp, setUploadingApp] = useState(false);
 
   // Exit countdown
   useEffect(() => {
