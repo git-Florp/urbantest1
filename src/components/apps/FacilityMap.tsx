@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { MapPin, AlertTriangle, CheckCircle, XCircle, Users, Activity } from "lucide-react";
+import { toast } from "sonner";
 
 interface Room {
   id: string;
@@ -15,7 +16,14 @@ interface Room {
 }
 
 export const FacilityMap = () => {
-  const [rooms, setRooms] = useState<Room[]>([
+  const [rooms, setRooms] = useState<Room[]>(() => {
+    const importedData = localStorage.getItem('facility_map_import');
+    if (importedData) {
+      localStorage.removeItem('facility_map_import');
+      toast.success("Design imported from Facility Planner!");
+      return JSON.parse(importedData);
+    }
+    return [
     // Top row - Level 1
     { id: "control", name: "Control Room", type: "control", status: "operational", personnel: 3, x: 350, y: 50, width: 120, height: 80, connections: ["corridor-1", "server"] },
     { id: "server", name: "Server Bay", type: "storage", status: "operational", personnel: 0, x: 550, y: 50, width: 100, height: 80, connections: ["control", "corridor-2"] },
@@ -37,7 +45,8 @@ export const FacilityMap = () => {
     // Lower level
     { id: "engineering", name: "Engineering Deck", type: "engineering", status: "operational", personnel: 3, x: 100, y: 600, width: 180, height: 100, connections: ["corridor-3", "corridor-4", "storage"] },
     { id: "storage", name: "Storage Facility", type: "storage", status: "offline", personnel: 0, x: 350, y: 600, width: 350, height: 100, connections: ["containment", "engineering"] },
-  ]);
+  ];
+  });
 
   const [selectedRoom, setSelectedRoom] = useState<Room>(rooms[0]);
   const [entityEscaped, setEntityEscaped] = useState(false);
